@@ -121,15 +121,10 @@ Understand the start-up sequence before using the framework.
 
 
 
-\- How does ApplicationContext store beans?
-
-\- What is BeanFactory?
-
-\- What is BeanDefinition?
-
-\- How does AutoConfiguration actually work?
-
-\- How does Embedded Tomcat start?
-
-\- How does DispatcherServlet get created?
+* How does ApplicationContext store beans?
+* What is BeanFactory?
+* What is BeanDefinition?
+* How does AutoConfiguration actually work?
+* How does Embedded Tomcat start?
+* How does DispatcherServlet get created?
 
