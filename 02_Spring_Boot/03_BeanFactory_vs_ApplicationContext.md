@@ -24,11 +24,11 @@
   * &#x20;                    ▼
   * &#x20;              BeanFactory
   * &#x20;         (Bean Management Unit)
-    
-                              │
-              ┌───────────────┼────────────────┐
-              ▼                	  ▼               	 ▼
-    BeanDefinition        Singleton Cache       Dependency Resolver
+  * &#x20;
+  * &#x20;                    │
+  * &#x20;    ┌───────────────┼────────────────┐
+  * &#x20;    ▼                	  ▼               	 ▼
+  * &#x20;  BeanDefinition        Singleton Cache       Dependency Resolver
   * &#x20;  Registry
 
 Eg:
