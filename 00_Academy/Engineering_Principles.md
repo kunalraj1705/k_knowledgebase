@@ -20,3 +20,13 @@ Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-005: High-Level Components Coordinate, Low-Level Components Execute
 
+\##EP-006: Hide complexity behind a simple interface.
+
+\##EP-007: Solve complex object graphs by recursively solving smaller dependency problems.
+
+\##EP-008: Build complex systems by layering responsibilities.
+
+\##EP-009: A coordinator should orchestrate work, not perform specialized work.
+
+\##EP-010: Solve complex object graphs recursively.
+
