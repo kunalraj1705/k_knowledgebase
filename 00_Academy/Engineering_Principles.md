@@ -28,5 +28,7 @@ Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-009: A coordinator should orchestrate work, not perform specialized work.
 
-\##EP-010: Solve complex object graphs recursively.
+\##EP-010: Frameworks Operate on Metadata
+
+\##EP-011: Separate Decision-Making from Execution
 
