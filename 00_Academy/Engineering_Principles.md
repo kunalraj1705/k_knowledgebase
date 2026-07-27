@@ -32,3 +32,27 @@ Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-011: Separate Decision-Making from Execution
 
+\##EP-012: Never expose an object before it is fully initialized.
+
+\##EP-013: Frameworks should provide extension points instead of modifying core components for every new feature.
+
+\##EP-014: Enhance behavior by wrapping an object instead of modifying its source code (Proxy Pattern).
+
+\##EP-015: Separate Business Logic from Cross-Cutting Concerns
+
+* Business classes should focus only on domain logic.
+* Common concerns like transactions, logging, security, caching, and monitoring should be implemented outside the business class.
+* Spring achieves this by wrapping beans with proxies created through BeanPostProcessors, allowing additional behavior without modifying the original source code.
+
+\##EP-016: Extension mechanisms are constrained by the capabilities of the underlying language.
+
+\##EP-017: Interception only occurs at object boundaries. Internal method calls bypass external interceptors.
+
+\##EP-018: Framework features are most effective when component boundaries align with framework interception points.
+
+\##EP-019: Prefer clear component boundaries over framework-specific workarounds.
+
+\##EP-020: A proxy can intercept only methods that the language allows it to override or dispatch through the proxy.
+
+
+
