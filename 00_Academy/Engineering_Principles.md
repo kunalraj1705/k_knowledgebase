@@ -54,5 +54,23 @@ Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-020: A proxy can intercept only methods that the language allows it to override or dispatch through the proxy.
 
+\##EP-021: Parse once. Cache metadata. Reuse repeatedly.
 
+\##EP-022: Separate bean creation from bean enhancement.
+
+\##EP-023: Represent cross-cutting concerns as an ordered chain of independent interceptors rather than nested proxy objects.
+
+\##EP-024: Separate where logic applies from what logic executes.
+
+\##EP-025: Share behavior; pass context.
+
+\##EP-026: Initialization prepares the object itself; post-processing allows the framework to enhance or replace the object.
+
+\##EP-027: Annotations are declarative metadata, not executable behavior.
+
+\##EP-028: Separate method selection from behavior execution.
+
+\##EP-029: Represent framework behavior as reusable rules rather than per-method configurations.
+
+\##EP-030: Design framework infrastructure around abstractions, not concrete features
 
