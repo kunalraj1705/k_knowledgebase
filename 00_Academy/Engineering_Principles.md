@@ -74,3 +74,23 @@ Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-030: Design framework infrastructure around abstractions, not concrete features
 
+\##EP-031: Move execution state into a context object rather than distributing it across participants.
+
+\##EP-032: Centralize traversal logic so individual interceptors remain simple.
+
+\##EP-033: Represent one method invocation with a dedicated context object (ReflectiveMethodInvocation).
+
+\##EP-034: Design algorithms so every iteration follows the same path; eliminate special cases.
+
+\##EP-035: Restore system consistency locally (rollback) while preserving failure information globally (rethrow).
+
+\##EP-036: Recursive invocation naturally propagates execution, return values, and exceptions through the interceptor chain.
+
+\##EP-037: Proxy compatibility follows Java's type system, not Spring's dependency injection rules.
+
+\##EP-038: Interception occurs at object boundaries, not method boundaries.
+
+\##EP-039: A proxy preserves the public contract of an object, but not necessarily its concrete implementation type.
+
+
+
