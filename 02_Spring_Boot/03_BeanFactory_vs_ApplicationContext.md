@@ -1,10 +1,8 @@
 # BeanFactory vs ApplicationContext
 
-
 ##Learning Objective
 
 * Understand the responsibilities of ApplicationContext and BeanFactory, how Spring locates and creates beans, and how recursive dependency resolution works.
-
 
 ## Why does Spring have both BeanFactory and ApplicationContext?
 
@@ -13,20 +11,20 @@
 * Spring introduces ApplicationContext as a higher-level abstraction that hides the internal complexity of the BeanFactory.
 * Mental Model
 
-  *                 Developer
-  *                     Ã¢â€â€š
-  *                     Ã¢â€“Â¼
-  *          ApplicationContext
-  *        (Public API / Showroom)
-  *                     Ã¢â€â€š
-  *                     Ã¢â€“Â¼
-  *               BeanFactory
-  *          (Bean Management Unit)
-  *                     Ã¢â€â€š
-  *     Ã¢â€Å’Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¼Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â
-  *     Ã¢â€“Â¼                     Ã¢â€“Â¼                    Ã¢â€“Â¼
+  *                  Developer
+  *                      │
+  *                      ▼
+  *           ApplicationContext
+  *         (Public API / Showroom)
+  *                      │
+  *                      ▼
+  *                BeanFactory
+  *           (Bean Management Unit)
+  *                      │
+  *      ┌───────────────┼────────────────┐
+  *      ▼                     ▼                    ▼
   * BeanDefinition   Singleton Cache   Dependency Resolver
-  *   Registry
+  *    Registry
 
 Eg:
 
@@ -34,8 +32,8 @@ You want to buy a car, you go to showroom and get the car. You don't know how yo
 
 Here Showroom represent the ApplicationContext, Car factory represent the BeanFactory.
 
-
 ---
+
 ## Responsibilities
 
 * ApplicationContext
@@ -49,7 +47,7 @@ Here Showroom represent the ApplicationContext, Car factory represent the BeanFa
     * Environment \& Properties
     * Internationalization (i18n)
 
-   ApplicationContext coordinates but does not perform bean creation.
+    ApplicationContext coordinates but does not perform bean creation.
 
 * BeanFactory
 
@@ -60,9 +58,10 @@ Here Showroom represent the ApplicationContext, Car factory represent the BeanFa
   * Maintains Singleton Cache
   * Manages Bean Lifecycle
 
-  BeanFactory is the core IoC container.
+   BeanFactory is the core IoC container.
 
 ---
+
 ## Internal Components of BeanFactory
 
 1. BeanDefinition Registry
@@ -83,11 +82,11 @@ Here Showroom represent the ApplicationContext, Car factory represent the BeanFa
    * Stores already-created singleton objects.
 
      * userService
-     *        Ã¢â€ â€œ
+     *         ↓
      * UserService Instance
      *
      * emailService
-     *        Ã¢â€ â€œ
+     *         ↓
      * EmailService Instance
    * Every getBean() call first checks this cache.
 3. Dependency Resolver
@@ -100,187 +99,150 @@ Here Showroom represent the ApplicationContext, Car factory represent the BeanFa
      * Primary selection
      * Circular dependency detection
 
-
 ---
+
 ## Bean Retrieval Algorithm
 
 getBean(UserService)
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Check Singleton Cache
 
-
-       Ã¢â€â€š
+        │
 
 Found?
 
-Ã¢â€â€š
+│
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Yes Ã¢â€ â€™ Return Existing Bean
+├── Yes → Return Existing Bean
 
-Ã¢â€â€š
+│
 
-Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ No
+└── No
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Read BeanDefinition
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Choose Constructor
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Resolve Constructor Dependencies
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Create Bean
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Initialize Bean
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Singleton?
 
-
-       Ã¢â€â€š
+        │
 
 Yes
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Store in Singleton Cache
 
+        │
 
-       Ã¢â€â€š
-
-       Ã¢â€“Â¼
+        ▼
 
 Return Bean
 
-
 ---
+
 ## Recursive Dependency Resolution
 
 Eg:
 
-
 UserService(
 
-   UserRepository repository,
+    UserRepository repository,
 
-   NotificationService notificationService
+    NotificationService notificationService
 
 )
 
-
 Spring does not create UserService immediately.
-
 
 Instead:
 
-
 getBean(UserService)
 
-
-Ã¢â€ â€œ
-
+↓
 
 Need UserRepository
 
-
-Ã¢â€ â€œ
-
+↓
 
 getBean(UserRepository)
 
-
-Ã¢â€ â€œ
-
+↓
 
 Create UserRepository
 
-
-Ã¢â€ â€œ
-
+↓
 
 Return
 
-
-Ã¢â€ â€œ
-
+↓
 
 Need NotificationService
 
-
-Ã¢â€ â€œ
-
+↓
 
 Find Candidates
 
-
-Ã¢â€ â€œ
-
+↓
 
 Resolve @Qualifier/@Primary
 
-
-Ã¢â€ â€œ
-
+↓
 
 Create EmailService
 
-
-Ã¢â€ â€œ
-
+↓
 
 Return
 
-
-Ã¢â€ â€œ
-
+↓
 
 Create UserService
 
-
-Ã¢â€ â€œ
-
+↓
 
 Return
 
-
 NOTE: Spring recursively calls getBean() for dependencies until the dependency graph is fully satisfied.
 
-
 ---
+
 ## Constructor Selection
 
 1. One Constructor : Spring automatically selects it.
@@ -292,12 +254,11 @@ NOTE: Spring recursively calls getBean() for dependencies until the dependency g
    2. UserService(UserRepository)
    3. UserService(UserRepository, EmailService)
 
-
 ---
+
 ## Bean Lookup Strategy
 
 Spring instead maintains bean metadata (primarily indexed by bean name) and resolves candidates by type when needed, applying rules like:
-
 
 Match by type
 
@@ -307,101 +268,81 @@ Apply @Primary
 
 Throw exception if ambiguous
 
-
 ---
+
 ## Mental Model
 
 Developer
 
-
-Ã¢â€ â€œ
-
+↓
 
 ApplicationContext
 
-
-Ã¢â€ â€œ
-
+↓
 
 BeanFactory
 
-
-Ã¢â€ â€œ
-
+↓
 
 Singleton Cache
 
-
-Ã¢â€ â€œ
-
+↓
 
 BeanDefinition Registry
 
-
-Ã¢â€ â€œ
-
+↓
 
 Dependency Resolution
 
-
-Ã¢â€ â€œ
-
+↓
 
 Bean Creation
 
-
-Ã¢â€ â€œ
-
+↓
 
 Bean Initialization
 
-
-Ã¢â€ â€œ
-
+↓
 
 Singleton Cache
 
-
-Ã¢â€ â€œ
-
+↓
 
 Return Bean
 
-
 ---
+
 ## Spring BeanFactory Architecture
 
 Spring does not use a single BeanFactory implementation. Instead, it builds functionality through layered abstractions.
 
 BeanFactory (Interface)
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 AbstractBeanFactory
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 AbstractAutowireCapableBeanFactory
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 DefaultListableBeanFactory
 
-
 Each layer adds a specific responsibility while reusing functionality from the previous layer.
 
-
 ---
+
 ## Responsibilities of Each Layer
 
 BeanFactory (Interface)
-
 
 * Defines the contract for the IoC container.
 * Example methods:
@@ -410,9 +351,7 @@ BeanFactory (Interface)
   * containsBean()
   * isSingleton()
 
-
-  It defines what a BeanFactory should do, not how.
-
+   It defines what a BeanFactory should do, not how.
 
 * AbstractBeanFactory
 
@@ -425,8 +364,7 @@ BeanFactory (Interface)
     * Coordinates bean creation
     * Delegates actual bean creation to AbstractAutowireCapableBeanFactory
 
-   It does not instantiate objects directly.
-
+    It does not instantiate objects directly.
 
 * AbstractAutowireCapableBeanFactory
 
@@ -441,8 +379,7 @@ BeanFactory (Interface)
     * Execute initialization callbacks
     * Apply BeanPostProcessors
 
-   This is where Spring actually creates objects.
-
+    This is where Spring actually creates objects.
 
 * DefaultListableBeanFactory
 
@@ -457,98 +394,95 @@ BeanFactory (Interface)
     * Supports efficient bean lookup
 
 ---
+
 ApplicationContext
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 AbstractBeanFactory.getBean()
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Singleton Cache
 
-       Ã¢â€â€š
+        │
 
 Found?
 
-Ã¢â€â€š
+│
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Yes Ã¢â€ â€™ Return Bean
+├── Yes → Return Bean
 
-Ã¢â€â€š
+│
 
-Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ No
+└── No
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Read BeanDefinition
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 AbstractAutowireCapableBeanFactory.createBean()
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Choose Constructor
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Resolve Dependencies
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Instantiate Object
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Inject Dependencies
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Initialize Bean
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Store Singleton
 
-       Ã¢â€â€š
+        │
 
-       Ã¢â€“Â¼
+        ▼
 
 Return Bean
 
-
 ---
-## Interview Discussion
 
+## Interview Discussion
 
 Q1. Why doesn't AbstractBeanFactory instantiate beans directly?
 
-
 Answer: Because object creation is a specialized concern. AbstractBeanFactory coordinates bean retrieval, while AbstractAutowireCapableBeanFactory encapsulates the complex logic for constructor resolution, dependency injection, initialization, and lifecycle management. This follows the Single Responsibility Principle.
 
-
-Q2. Why did Spring choose inheritance (AbstractBeanFactory Ã¢â€ â€™ AbstractAutowireCapableBeanFactory Ã¢â€ â€™ DefaultListableBeanFactory) instead of putting everything into one class?
-
+Q2. Why did Spring choose inheritance (AbstractBeanFactory → AbstractAutowireCapableBeanFactory → DefaultListableBeanFactory) instead of putting everything into one class?
 
 Answer: Each layer introduces a distinct capability without duplicating existing logic. This makes the framework extensible, easier to maintain, and aligned with the Open/Closed Principle.

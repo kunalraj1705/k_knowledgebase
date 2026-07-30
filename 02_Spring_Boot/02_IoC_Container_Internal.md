@@ -1,12 +1,10 @@
 # IoC Container Internals
 
-
 ## Why does this exist?
 
 Spring application can contain hundred or even thousands of objects. Instead of developers creating this manually using new keyword and wiring these object we give this job to Spring's IoC Container. This container is responsible for creating, managing and injecting dependencies between them.
 
 The IoC container also ensures that bean lifecycle. scope and dependency resolution are handled consistently throughout application .
-
 
 ## Key concepts
 
@@ -17,7 +15,6 @@ The IoC container also ensures that bean lifecycle. scope and dependency resolut
 * Bean Scope
 * Dependency Resolution
 * Dependency Injection
-
 
 ## Bean Management Flow
 
@@ -30,7 +27,6 @@ The IoC container also ensures that bean lifecycle. scope and dependency resolut
 7. Singleton Beans are stored inside the singleton bean registry.
 8. Dependencies are injected.
 9. The fully initialized bean is returned when requested.
-
 
 ## Bean Definition
 
@@ -50,8 +46,8 @@ A Bean Definition contains information such as:
 
 Bean Definition act as a blueprint that spring uses whenever a bean needs to be created.
 
-
 ---
+
 ## Singleton Bean Registry
 
 Singleton beans are created only once.
@@ -60,8 +56,8 @@ After creation, spring stores them in Singleton Bean Registry.
 
 Whenever another bean requests the same dependency, Spring returns the existing instance instead of creating a new one.
 
-
 ---
+
 ## Prototype Beans
 
 Prototype beans are handled differently.
@@ -75,35 +71,33 @@ Instead:
 3. Inject Dependencies
 4. Return the object
 
-
 Once the Spring returns the object. It no longer manages the lifecycle. When objects become unreachable, JVM reclaims the memory.
 
-
 ---
+
 ## Dependency Resolution
 
 Before creating a bean, spring examines its constructor dependencies.
 
 Example:
 
-&#x09;UserController
+    UserController
 
-&#x09; Ã¢Â¬â€¡Ã¯Â¸Â
+     ⬇️
 
-&#x09;Depends on
+    Depends on
 
-&#x09; Ã¢Â¬â€¡Ã¯Â¸Â
+     ⬇️
 
-&#x09;UserService
+    UserService
 
-&#x09; Ã¢Â¬â€¡Ã¯Â¸Â
+     ⬇️
 
-&#x09;Depends on
+    Depends on
 
-&#x09; Ã¢Â¬â€¡Ã¯Â¸Â
+     ⬇️
 
-&#x09;UserRepository
-
+    UserRepository
 
 Spring creates the bean in dependency order:
 
@@ -113,25 +107,23 @@ Spring creates the bean in dependency order:
 
 3: UserController
 
-
-This ensures every dependency is available before injection.
-
+This insures every dependency is available before injection.
 
 ---
+
 ## Multiple Implementation
 
 If multiple bean implement the same Interface:
 
 NotificationService
 
-&#x09;|
+    |
 
 EmailService
 
 SMSService
 
 PushNotificationService
-
 
 Spring follows this Process:
 
@@ -141,8 +133,8 @@ Spring follows this Process:
 4. If @Qualifier is specified use the matching bean
 5. If ambiguity still exist, throw NoUniqueBeanDefinitionException
 
-
 ---
+
 ## Singleton vs Prototype
 
 Singleton
@@ -151,15 +143,14 @@ Singleton
 * Stores in singleton Registry
 * Reuses throughout application
 
-
 Prototype
 
 * New instance created every request
 * Not stored after creation
 * Lifecycle after creation is managed by JVM
 
-
 ---
+
 ## Important Learnings
 
 * BeanDefinition is metadata, not the bean itself
@@ -169,8 +160,8 @@ Prototype
 * Dependency resolution occurs before bean creation.
 * JVM garbage collector manages the prototype bean memory after spring returns the object
 
-
 ---
+
 ## Common mistakes
 
 * Thinking bean definition is the actual bean
@@ -178,8 +169,8 @@ Prototype
 * Confusing application context with Bean Factory.
 * Believing spring manually deletes prototype beans.
 
-
 ---
+
 ## Interview Questions
 
 * What is BeanDefinition?
@@ -189,61 +180,59 @@ Prototype
 * What happens when multiple implementation of an interface exist?
 * What is the difference between BeanFactory and ApplicationContext?
 
-
 ---
+
 ## Engineering Principle
 
 Separate metadata from Runtime state
 
 Framework should store bean description of objects independently from object themselves.
 
-
 ---
-## My Mental Model
 
+## My Mental Model
 
 Component Scan
 
-Ã¢â€ â€œ
+↓
 
 Bean Definitions
 
-Ã¢â€ â€œ
+↓
 
 BeanFactory
 
-Ã¢â€ â€œ
+↓
 
 Dependency Resolution
 
-Ã¢â€ â€œ
+↓
 
 Bean Creation
 
-Ã¢â€ â€œ
+↓
 
 Singleton?
 
-Ã¢â€ â€œ
+↓
 
-YES Ã¢â€ â€™ Store in Singleton Registry
+YES → Store in Singleton Registry
 
-Ã¢â€ â€œ
+↓
 
-NO Ã¢â€ â€™ Return New Instance
+NO → Return New Instance
 
-Ã¢â€ â€œ
+↓
 
 Dependency Injection
 
-Ã¢â€ â€œ
+↓
 
 ApplicationContext Ready
 
-
 ---
-## Things I Don't Yet Understand
 
+## Things I Don't Yet Understand
 
 * How does BeanFactory create beans internally?
 * What data structures does Spring actually use?

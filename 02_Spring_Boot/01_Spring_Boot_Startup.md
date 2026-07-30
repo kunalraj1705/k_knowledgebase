@@ -1,12 +1,10 @@
 # Spring Boot Startup
 
-
 ## Why does this exist?
 
 Spring Framework required extensive manual configuration (XML and later Java Configuration). Spring Boot reduces this boilerplate by providing sensible defaults and automatic configuration while still allowing customization when needed.
 
 This will auto add the configuration when it finds the dependencies in the classpath. Let's say I want to add tomcat or I want to add a db. In Spring boot all we do is add the dependency in pom.xml and Maven downloads the dependency. During application startup, Spring Boot detects the dependency on the classpath and automatically configures the related infrastructure.
-
 
 ## Key Concept
 
@@ -17,7 +15,6 @@ This will auto add the configuration when it finds the dependencies in the class
 * Bean
 * IoC Container
 * Dependency Injection
-
 
 ## Startup flow
 
@@ -31,22 +28,19 @@ Just like a java program the application class the the main method. The main met
 
 After the bean definition is created it will start creating the bean. Spring resolves the dependency graph and creates beans in an order that satisfies all required dependencies. The ApplicationContext stores, manages, initializes, and provides beans throughout the application's lifecycle. IoC container creates bean and injects their required dependencies during bean initialization. There are two type of Injection Via Constructor, via Field. DI via constructor is preferred because before starting the Application it resolves all the dependency. If everything is resolved then it will start the application else there the application will not start and fail with exception BeanCurrentlyInCreationException.
 
-
 ## Important Learning
 
 * Spring uses java reflection to inspect annotation.
-* Component scanning discovers bean definitions.
+* Component scanning discovers bean definitnions.
 * Auto-configuration creates the infrastructure beans.
 * ApplicationContext manages the bean lifecycle.
 * Constructor injects resolves dependencies before bean creation
-
 
 ## Common Mistakes
 
 * Thinking spring reads pom.xml at runtime
 * confusing component scan with bean creation
 * assuming annotations executes themselves.
-
 
 ## Interview Questions
 
@@ -55,59 +49,55 @@ After the bean definition is created it will start creating the bean. Spring res
 * How does Spring discover beans?
 * Why is constructor injection recommended?
 
-
 ## Engineering Principle
 
 Understand the start-up sequence before using the framework.
 
-
 ## My Mental Model
 
-&#x09;JVM
+    JVM
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;main()
+    main()
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;SpringApplication.run()
+    SpringApplication.run()
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;Read @SpringBootApplication
+    Read @SpringBootApplication
 
-     Ã¢â€ â€œ
+      ↓
 
-&#x09;Component Scan
+    Component Scan
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;Bean Definitions
+    Bean Definitions
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-    Dependency Resolution
+     Dependency Resolution
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;Bean Creation
+    Bean Creation
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;ApplicationContext
+    ApplicationContext
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;Embedded Tomcat Starts
+    Embedded Tomcat Starts
 
-&#x09; Ã¢â€ â€œ
+     ↓
 
-&#x09;Application Ready
-
+    Application Ready
 
 ## Things I Don't Yet Understand
-
 
 * How does ApplicationContext store beans?
 * What is BeanFactory?

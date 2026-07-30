@@ -11,12 +11,12 @@
 * Why component boundaries are important in Spring architecture
 
 ---
+
 # Problem Statement
 
 Reflection has created the object.
 
 UserService service = new UserService(repository);
-
 
 Question: Is this immediately a Spring Bean?
 
@@ -31,61 +31,61 @@ Spring still needs to:
 * create proxies (if necessary)
 * return the final object to the application
 
-
 ---
+
 # Architecture
 
 Bean Request
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Dependency Resolution
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Reflection
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Java Object Created
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 @PostConstruct
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 BeanPostProcessor
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Proxy Created (if required)
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Bean Returned
 
-
 ---
-# Stage 1 Ã¢â‚¬â€ Reflection Creates a Java Object
+
+# Stage 1 — Reflection Creates a Java Object**
+
 Reflection simply invokes the constructor.
 
 UserService service = constructor.newInstance(repository);
-
 
 At this stage:
 
@@ -95,11 +95,9 @@ At this stage:
 
 But Spring has not yet finished processing it.
 
-
-**Stage 2 Ã¢â‚¬â€ @PostConstruct**
+**Stage 2 — @PostConstruct**
 
 Before exposing the object, Spring executes initialization callbacks.
-
 
 Eg:
 
@@ -107,10 +105,9 @@ Eg:
 
 public void init() {
 
-   cache.load();
+    cache.load();
 
 }
-
 
 Purpose:
 
@@ -120,7 +117,6 @@ Purpose:
 * Prepare expensive resources
 
 Only after initialization is complete can the bean be safely used.
-
 
 Why?
 
@@ -133,25 +129,21 @@ Returning a partially initialized object could lead to:
 
 Spring guarantees that every bean is fully initialized before it becomes available.
 
-
-**Stage 3 Ã¢â‚¬â€ BeanPostProcessor**
+**Stage 3 — BeanPostProcessor**
 
 Now Spring asks:
 
 Should this bean be modified before it is returned?
 
-
 Instead of embedding every feature inside BeanFactory, Spring delegates to extension points.
 
 for (BeanPostProcessor processor : processors) {
 
-   bean = processor.postProcess(bean);
+    bean = processor.postProcess(bean);
 
 }
 
-
 Every processor gets an opportunity to inspect or replace the bean.
-
 
 **Why BeanPostProcessor Exists ?**
 
@@ -159,90 +151,83 @@ Without extension points:
 
 BeanFactory
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Logging
+├── Logging
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Transactions
+├── Transactions
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Security
+├── Security
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Caching
+├── Caching
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Metrics
+├── Metrics
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Validation
+├── Validation
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Async
+├── Async
 
-Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Retry
+├── Retry
 
-Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ Ã¢â‚¬Â¦
-
+└── …
 
 The BeanFactory would become enormous.
-
 
 Instead:
 
 BeanFactory
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 BeanPostProcessor Chain
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Transaction Processor
+      ├── Transaction Processor
 
-     Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Security Processor
+      ├── Security Processor
 
-     Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Cache Processor
+      ├── Cache Processor
 
-     Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Async Processor
+      ├── Async Processor
 
-     Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ Custom Processors
-
+      └── Custom Processors
 
 This keeps the framework open for extension while keeping the core simple.
-
 
 **Proxy Creation**
 
 * **Suppose:**
 
-    @Service
+     @Service
 
-&#x09;public class PaymentService {
+    public class PaymentService {
 
-&#x09;   @Transactional
+       @Transactional
 
-&#x09;   public void transfer() {}
+       public void transfer() {}
 
-       }
+        }
 
 Spring does not usually return the original object.
 
-
 * **Instead:**
 
-    Developer
+     Developer
 
-         Ã¢â€â€š
+          │
 
-         Ã¢â€“Â¼
+          ▼
 
-   Transaction Proxy
+    Transaction Proxy
 
-         Ã¢â€â€š
+          │
 
-           Ã¢â€“Â¼
+            ▼
 
-   Original PaymentService
-
+    Original PaymentService
 
 The proxy adds behavior before and after the business method.
-
 
 * **Why Use a Proxy?**
 
@@ -254,44 +239,36 @@ transfer();
 
 commitTransaction();
 
-
 Spring wraps your object.
 
 Conceptually:
 
 proxy.transfer() {
 
+    startTransaction();
 
-   startTransaction();
+    target.transfer();
 
-
-   target.transfer();
-
-
-   commitTransaction();
-
+    commitTransaction();
 
 }
 
-
 Your business class remains focused on business logic.
-
 
 * **Two Types of Proxies**
 1. **JDK Dynamic Proxy**
 
-  PaymentService
+   PaymentService
 
-        Ã¢â€“Â²
+         ▲
 
-         Ã¢â€â€š
+          │
 
-Ã¢â€Å’Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â´Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â
+ ┌──────┴────────┐
 
-Ã¢â€â€š                     Ã¢â€â€š
+ │                     │
 
 Impl         TransactionProxy
-
 
 **2. CGLIB Proxy**
 
@@ -299,18 +276,18 @@ Impl         TransactionProxy
 
 PaymentService
 
-       Ã¢â€“Â²
+        ▲
 
-       Ã¢â€â€š
+        │
 
 TransactionProxy
 
-
 The proxy subclasses the original class and overrides methods.
 
-
 ---
-# Java Constraints
+
+# Java Constraints**
+
 Spring operates within Java's rules.
 
 * **Final Class**
@@ -334,32 +311,29 @@ Spring operates within Java's rules.
   * They cannot be overridden.
   * Therefore they cannot be intercepted.
 
-
 ---
-# Self Invocation
+
+# Self Invocation**
+
 Consider:
 
 @Service
 
 public class OrderService {
 
+    @Transactional
 
-   @Transactional
+    public void placeOrder() {
 
-   public void placeOrder() {
+        saveOrder();
 
-       saveOrder();
+    }
 
-   }
+    @Transactional
 
+    public void saveOrder() {
 
-   @Transactional
-
-   public void saveOrder() {
-
-
-   }
-
+    }
 
 }
 
@@ -369,91 +343,83 @@ But internally Java executes:
 
 this.saveOrder();
 
-
 Execution flow:
 
 Developer
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Proxy
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 placeOrder()
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 this.saveOrder()
-
 
 The second call never passes through the proxy.
 
 Result: saveOrder() is not intercepted.
 
-
 ---
-# Why Another Bean Works
+
+# Why Another Bean Works**
+
 Instead:
 
 @Service
 
 public class OrderService {
 
+    @Autowired
 
-   @Autowired
+    private OrderPersistenceService persistence;
 
-   private OrderPersistenceService persistence;
+    public void placeOrder() {
 
+        persistence.saveOrder();
 
-   public void placeOrder() {
-
-       persistence.saveOrder();
-
-   }
+    }
 
 }
-
 
 Flow:
 
 OrderService
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 OrderPersistenceService Proxy
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 saveOrder()
 
-
 The call crosses a bean boundary. Therefore the proxy intercepts it.
 
+# Self Injection**
 
-# Self Injection
 Some developers write:
-
 
 @Autowired
 
 private OrderService self;
 
-
 Then:
 
 self.saveOrder();
-
 
 This works because Spring injects the proxy.
 
@@ -461,140 +427,138 @@ Flow:
 
 Target Object
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 self
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 Proxy
 
-     Ã¢â€â€š
+      │
 
-     Ã¢â€“Â¼
+      ▼
 
 saveOrder()
-
 
 Although functional, this is generally considered a workaround.
 
 The preferred solution is to separate responsibilities into different beans.
 
-
 ---
-# Public vs Private vs Self Invocation
+
+# Public vs Private vs Self Invocation**
+
 | Scenario                     | Can Override? | Goes Through Proxy? | Intercepted? |
 
 | ---------------------------- | ------------- | ------------------- | ------------ |
 
-| Another bean Ã¢â€ â€™ public method | Ã¢Å“â€¦             | Ã¢Å“â€¦                   | Ã¢Å“â€¦            |
+| Another bean → public method | ✅             | ✅                   | ✅            |
 
-| `this.publicMethod()`        | Ã¢Å“â€¦             | Ã¢ÂÅ’                   | Ã¢ÂÅ’            |
+| `this.publicMethod()`        | ✅             | ❌                   | ❌            |
 
-| `privateMethod()`            | Ã¢ÂÅ’             | Ã¢ÂÅ’                   | Ã¢ÂÅ’            |
+| `privateMethod()`            | ❌             | ❌                   | ❌            |
 
-| `finalMethod()`              | Ã¢ÂÅ’             | Depends             | Ã¢ÂÅ’            |
-
+| `finalMethod()`              | ❌             | Depends             | ❌            |
 
 ---
+
 # Internal Working Summary
 
 BeanFactory
 
-Ã¢â€ â€œ
+↓
 
 Resolve Dependencies
 
-Ã¢â€ â€œ
+↓
 
 Reflection
 
-Ã¢â€ â€œ
+↓
 
 Java Object
 
-Ã¢â€ â€œ
+↓
 
 @PostConstruct
 
-Ã¢â€ â€œ
+↓
 
 BeanPostProcessor Chain
 
-Ã¢â€ â€œ
+↓
 
 Proxy Created (Optional)
 
-Ã¢â€ â€œ
+↓
 
 Return Bean
 
-Ã¢â€ â€œ
+↓
 
 Singleton Cache
 
-
 ---
-# Mental Models
+
+# Mental Models**
+
 1. **Bean Lifecycle**
 
 Constructor
 
-Ã¢â€ â€œ
+↓
 
 Java Object
 
-Ã¢â€ â€œ
+↓
 
 Initialization
 
-Ã¢â€ â€œ
+↓
 
 Enhancement
 
-Ã¢â€ â€œ
+↓
 
 Ready Bean
-
 
 **2. Proxy Pattern**
 
 Developer
 
-Ã¢â€ â€œ
+↓
 
 Proxy
 
-Ã¢â€ â€œ
+↓
 
 Original Object
 
-
 Developer never interacts with the original object directly.
-
 
 **3. Self Invocation**
 
 Proxy
 
-Ã¢â€ â€œ
+↓
 
 Original Object
 
-Ã¢â€ â€œ
+↓
 
 this.method()
-
 
 The proxy has already delegated execution.
 
 Further calls stay inside the original object.
 
-
 ---
-# **Interview Answer
+
+# **Interview Answer**
+
 Spring first creates a Java object using Reflection. At this point, it is not yet a fully managed Spring Bean. The framework executes lifecycle callbacks like @PostConstruct to complete initialization. Next, Spring passes the bean through a chain of BeanPostProcessors, which can inspect or replace the bean. If annotations such as @Transactional are detected, Spring creates a proxy instead of returning the original object. The proxy intercepts method calls to add cross-cutting behavior such as transactions, security, caching, or logging. Spring uses JDK Dynamic Proxies for interface-based beans and CGLIB subclass proxies for concrete classes. Because proxies rely on Java inheritance or interfaces, they cannot intercept final or private methods. Additionally, self-invocation (this.method()) bypasses the proxy, which is why proxy-based features work best across bean boundaries rather than within the same class.
