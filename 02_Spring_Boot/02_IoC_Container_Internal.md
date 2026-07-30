@@ -26,7 +26,7 @@ The IoC container also ensures that bean lifecycle. scope and dependency resolut
 
 1. Spring Scans the application packages.
 2. Component Scanning discovers class annotated with @component, @Service, @Controller, @Repository....
-3. Spring creates a bean definition for every discovers bean.
+3. Spring creates a bean definition for every discovered bean.
 4. BeanDefinitions are registered inside the BeanFactory
 5. Spring resolves the dependency graph
 6. Beans are instantiated in an order that satisfies all dependencies.

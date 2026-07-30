@@ -2,15 +2,7 @@
 
 
 
-\## EP-001
-
-A strong foundation reduces complexity later
-
-Understanding a technology is more valuable than memorizing its syntax.
-
-
-
-
+\##EP-001: A strong foundation reduces complexity later Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-002: Separate Discovery from Creation
 
@@ -92,5 +84,39 @@ Understanding a technology is more valuable than memorizing its syntax.
 
 \##EP-039: A proxy preserves the public contract of an object, but not necessarily its concrete implementation type.
 
+\##EP-040: Generate repetitive infrastructure code at runtime instead of requiring developers to maintain it manually.
 
+\##EP-041: When an abstraction is too restrictive, extend the framework with another mechanism rather than forcing developers to change their design.
+
+\##EP-042: AOP modularizes cross-cutting concerns.
+
+\##EP-043: Annotations describe behaviour; framework infrastructure implements it.
+
+\##EP-044: The JVM provides metadata; Spring gives it meaning.
+
+\##EP-045: Advisors decide whether an advice applies; Interceptors define how it executes.
+
+\##EP-046: Aspects are for developers. Advisors are for Spring.
+
+\##EP-047: Separate the developer programming model from the runtime execution model.
+
+\##EP-048: Spring first decides whether (Advisor/Pointcut), then how (Advice → MethodInterceptor), then composes interceptors into an Interceptor Chain.
+
+\##EP-049: Different programming models become one runtime execution model.
+
+\##EP-050: Around Advice controls continuation of the interceptor chain.
+
+\##EP-051: Order cross-cutting concerns from least expensive to most expensive so invalid requests are rejected before costly resources are allocated.
+
+\##EP-052: Interceptors that can short-circuit execution should execute before expensive operations like transactions and database access.
+
+\##EP-053: Proxy-based AOP intercepts only calls entering through the proxy.
+
+\##EP-054: Proxy-based AOP can only intercept calls that pass through the proxy. Designing services with clear boundaries naturally allows AOP to work without special workarounds.
+
+\##EP-055: In proxy-based frameworks, interception depends on the object receiving the call, not the location of the calling code.
+
+\##EP-056: Expensive discovery happens during startup, not during runtime.
+
+\##EP-057: Framework infrastructure must be established before application components are processed, because enhancement happens during object creation—not afterward.
 

@@ -1,8 +1,8 @@
-\# BeanFactory vs ApplicationContext
+**# BeanFactory vs ApplicationContext**
 
 
 
-\##Learning Objective
+**##Learning Objective**
 
 * Understand the responsibilities of ApplicationContext and BeanFactory, how Spring locates and creates beans, and how recursive dependency resolution works.
 
@@ -43,7 +43,7 @@ Here Showroom represent the ApplicationContext, Car factory represent the BeanFa
 
 
 
-\## Responsibilities
+**## Responsibilities**
 
 * ApplicationContext
 
@@ -61,24 +61,25 @@ Here Showroom represent the ApplicationContext, Car factory represent the BeanFa
 * BeanFactory
 
   * Responsibilities:
-  * Stores Bean Definitions
-  * Creates Beans
-  * Resolves Dependencies
-  * Maintains Singleton Cache
-  * Manages Bean Lifecycle
+
+    * Stores Bean Definitions
+    * Creates Beans
+    * Resolves Dependencies
+    * Maintains Singleton Cache
+    * Manages Bean Lifecycle
 
 &#x20;  BeanFactory is the core IoC container.
 
 \------------------------------------------------------------------------------
 
-\## Internal Components of BeanFactory
+**## Internal Components of BeanFactory**
 
 1. BeanDefinition Registry
 
    * Stores metadata required to create beans.
    * Example metadata:
 
-     * Bean Class	
+     * Bean Class
      * Scope
      * Constructor
      * Dependencies
@@ -509,7 +510,7 @@ BeanFactory (Interface)
   * Acts as the coordinator for bean retrieval.
   * Responsibilities:
 
-    * Implements the getBean() workflow	
+    * Implements the getBean() workflow
     * Checks the Singleton Cache
     * Retrieves BeanDefinitions
     * Coordinates bean creation
