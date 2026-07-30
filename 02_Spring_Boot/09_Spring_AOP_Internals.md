@@ -1,209 +1,555 @@
-# Spring AOP Internals
 
-## 1. Why Spring AOP exists
+# 1. Why does Spring AOP exist?
+# Problem
+Enterprise applications require infrastructure logic across multiple business methods.
 
-Enterprise applications often need the same infrastructure behaviour around many business methods:
 
-- Transaction management
-- Security
-- Logging
-- Caching
-- Metrics
-- Retries
-- Validation
+Examples:
 
-Without AOP, that behaviour is repeated in business code:
+* Transaction Management
+* Security
+* Logging
+* Caching
+* Metrics
+* Retry
+* Validation
 
-```java
+
+**Without AOP:**
+
+
 public void transfer() {
-    authenticate();
-    beginTransaction();
-    log();
-    businessLogic();
-    commit();
+
+   authenticate();
+
+   beginTransaction();
+
+   log();
+
+   businessLogic();
+
+   commit();
+
 }
-```
 
-This duplicates code, couples business logic to infrastructure, and makes maintenance harder. Spring AOP separates those cross-cutting concerns from the business method.
 
-```text
+Every service repeats the same infrastructure code.
+
+
+Problems:
+
+* Code duplication
+* Tight coupling
+* Business logic polluted with infrastructure
+* Difficult maintenance
+* Violates Single Responsibility Principle (SRP)
+
+
+---
+# Spring's Solution
+Separate business logic from infrastructure.
+
 Client
-  |
-  v
+
+   Ã¢â€â€š
+
+   Ã¢â€“Â¼
+
 Proxy
-  |-- Security
-  |-- Transaction
-  |-- Logging
-  |-- Cache
-  |-- Metrics
-  `-- Retry
-  |
-  v
-Business method
-```
 
-The infrastructure runs transparently before, after, or around the business method.
+   Ã¢â€â€š
 
-## 2. Core components
+   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Security
 
-- **Aspect**: a developer-facing grouping of cross-cutting behaviour, commonly declared with `@Aspect`.
+   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Transaction
 
-  ```java
-  @Aspect
-  class LoggingAspect {
-      // advice methods
-  }
-  ```
+   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Logging
 
-- **Advice**: defines *what* runs, for example `@Before`, `@After`, `@Around`, `@AfterReturning`, or `@AfterThrowing`.
-- **Pointcut**: defines *where* advice applies, such as methods annotated with `@Transactional`.
-- **Advisor**: Spring's runtime representation of a pointcut plus advice. Spring AOP ultimately applies advisors to beans.
-- **MethodInterceptor**: Spring's common runtime abstraction. Different advice types are adapted into interceptors that participate in one invocation chain.
+   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Cache
 
-## 3. Startup flow
+   Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Metrics
 
-1. The developer declares aspects or AOP-enabled annotations such as `@Transactional`.
-2. Spring registers the required infrastructure, including advisors and an auto-proxy creator (a `BeanPostProcessor`). For transaction management, `@EnableTransactionManagement` imports this infrastructure.
-3. As each eligible application bean is created, the auto-proxy creator checks whether any advisor matches it.
-4. If an advisor matches, Spring creates an AOP proxy and exposes that proxy as the bean reference used for dependency injection and lookups.
+   Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ Retry
 
-```text
-Application starts
-  |
-  v
-Register AOP infrastructure
-  |
-  v
-Create application bean
-  |
-  v
-Auto-proxy creator checks matching advisors
-  |
-  +-- no match --> expose the target bean
-  |
-  `-- match ----> create and expose a proxy
-```
+   Ã¢â€â€š
 
-The proxy delegates to a target object. Saying that the `ApplicationContext` *always* stores only proxies is too broad: a proxy is exposed when AOP applies, while Spring still manages the underlying target as part of the bean's creation and lifecycle.
+   Ã¢â€“Â¼
 
-## 4. Runtime flow
+Business Method remains clean
 
-When a caller invokes a proxied bean, the call first reaches the proxy:
+Infrastructure executes transparently.
 
-```text
-Client
-  |
-  v
-Proxy
-  |
-  v
-Ordered interceptor chain
-  |
-  v
-Target business method
-```
 
-For example, a `transfer()` call may execute logging, security, and transaction interceptors before the target method. Each interceptor can run behaviour before and after continuing the chain.
+---
+# 2. Core Components
+* **Aspect**
 
-## 5. Around advice and `proceed()`
+  * Developer's logical grouping of cross-cutting behavior.
+  * @Aspect
+  * class LoggingAspect {
+  *
+  * }
+  * An Aspect is not executed directly.
+* Advice
 
-```java
-@Around("execution(* com.example..*(..))")
-public Object log(ProceedingJoinPoint joinPoint) throws Throwable {
-    before();
-    Object result = joinPoint.proceed();
-    after();
-    return result;
+  * Defines what should execute.
+  * Examples:
+
+    * Before
+    * After
+    * Around
+    * AfterReturning
+    * AfterThrowing
+* Pointcut:
+
+  * Defines where Advice should execute.
+  * Example:
+
+    * Methods annotated with @Transactional
+* Advisor:
+
+  * Spring's runtime representation.
+  * Advisor = Pointcut + Advice
+  * Spring internally works with Advisors. Not Aspects.
+* MethodInterceptor:
+
+  * Common runtime abstraction.
+  * Every Advice eventually becomes a MethodInterceptor.
+  * Regardless of whether the developer writes:
+
+    * @Before
+    * @After
+    * @Around
+    * @Transactional
+  * Spring executes:
+
+    * interceptor.invoke(...)
+
+---
+# 3. Startup Flow
+**Step 1**
+
+Developer writes
+
+@Aspect
+
+class LoggingAspect {
+
 }
-```
 
-`joinPoint.proceed()` continues the invocation chain. It does not necessarily invoke the business method immediately; the target method is reached only after the remaining interceptors have proceeded.
 
-## 6. Advisor ordering
+@Transactional
 
-Spring collects applicable advisors and builds an ordered interceptor chain when it creates the proxy. Use `@Order` or the `Ordered` interface when the order matters:
 
-```java
+**Step 2**
+
+Spring parses annotations.
+
+
+**Step 3**
+
+Spring creates Advisors.
+
+Aspect
+
+Ã¢â€ â€œ
+
+Advisor
+
+
+**Step 4**
+
+AutoProxyCreator is registered.
+
+AutoProxyCreator is a BeanPostProcessor.
+
+
+**Step 5**
+
+Application beans are created.
+
+Example: PaymentService
+
+
+**Step 6**
+
+AutoProxyCreator executes.
+
+For every bean:
+
+Does any Advisor match?
+
+YES
+
+Ã¢â€ â€œ
+
+Create Proxy
+
+
+**Step 7**
+
+ApplicationContext stores Proxy NOT Target Object
+
+
+**Complete Startup Flow**
+
+Application Starts
+
+Ã¢â€ â€œ
+
+ApplicationContext
+
+Ã¢â€ â€œ
+
+Register Infrastructure Beans
+
+Ã¢â€ â€œ
+
+TransactionInterceptor
+
+Ã¢â€ â€œ
+
+TransactionAdvisor
+
+Ã¢â€ â€œ
+
+AutoProxyCreator
+
+Ã¢â€ â€œ
+
+Create Application Bean
+
+Ã¢â€ â€œ
+
+BeanPostProcessor
+
+Ã¢â€ â€œ
+
+Advisor Match
+
+Ã¢â€ â€œ
+
+Create Proxy
+
+Ã¢â€ â€œ
+
+Store Proxy
+
+
+---
+# 4. Runtime Flow
+Client calls: paymentService.transfer();
+
+
+**Actual Execution:**
+
+Client
+
+Ã¢â€ â€œ
+
+Proxy
+
+Ã¢â€ â€œ
+
+Interceptor Chain
+
+Ã¢â€ â€œ
+
+Business Method
+
+
+**Example:**
+
+Client
+
+Ã¢â€ â€œ
+
+LoggingInterceptor
+
+Ã¢â€ â€œ
+
+SecurityInterceptor
+
+Ã¢â€ â€œ
+
+TransactionInterceptor
+
+Ã¢â€ â€œ
+
+Business Method
+
+
+Each interceptor executes "proceed();" until the business method is reached.
+
+
+---
+# 5. Around Advice
+Example:
+
+@Around
+
+public Object log(ProceedingJoinPoint pjp){
+
+   before();
+
+   Object result = pjp.proceed();
+
+   after();
+
+   return result;
+
+}
+
+
+Important: pjp.proceed() Ã¢â€°Â  Invoke Business Method
+
+
+Instead:
+
+pjp.proceed()
+
+Ã¢â€ â€œ
+
+ReflectiveMethodInvocation.proceed()
+
+Ã¢â€ â€œ
+
+Next Interceptor
+
+
+Only the last interceptor invokes the target method.
+
+
+---
+# 6. Advisor Ordering
+Spring may discover
+
+* Security Advisor
+* Transaction Advisor
+* Logging Advisor
+
+
+Before proxy creation:
+
+Collect Advisors
+
+Ã¢â€ â€œ
+
+Sort Advisors
+
+Ã¢â€ â€œ
+
+Create Interceptor Chain
+
+Ã¢â€ â€œ
+
+Create Proxy
+
+
+Ordering can be controlled by:
+
 @Order(1)
-class SecurityAspect { }
-```
 
-Spring uses ordering rules, including `AnnotationAwareOrderComparator`, to determine the resulting order.
+@Order(2)
 
-## 7. Self-invocation
+@Order(3)
 
-```java
+
+Spring internally uses: AnnotationAwareOrderComparator
+
+
+---
+# 7. Self Invocation
+Example:
+
 @Transactional
-public void transfer() {
-    debit();
+
+public void transfer(){
+
+   debit();
+
 }
 
+
 @Transactional
-public void debit() {
-    // ...
+
+public void debit(){
+
 }
-```
 
-The call to `debit()` is a call on the target instance (`this.debit()`); it does not leave the object and re-enter through the proxy. Consequently, proxy-based advice on `debit()` is skipped for that internal call.
 
-```text
-External caller --> proxy --> transfer() on target --> this.debit()
-                                              ^
-                                              `-- bypasses the proxy
-```
+java converts debit(); to this.debit();
 
-Common solutions are to move the advised method to another bean, inject the bean's own proxy where appropriate, use `AopContext.currentProxy()` sparingly, or use AspectJ weaving when proxy-based AOP is not sufficient.
 
-## 8. Transaction infrastructure
+**Execution:**
 
-`@EnableTransactionManagement` registers transaction-management infrastructure, including a transaction advisor and interceptor. The auto-proxy creator must be available before application beans are initialized so it can create proxies for matching beans.
+Proxy
 
-## 9. Important learnings
+Ã¢â€ â€œ
 
-- Spring AOP is proxy-based by default.
-- Spring applies matching advisors to eligible beans.
-- Advice is executed through an ordered interceptor chain.
-- Around advice controls whether and when the chain continues.
-- Proxy creation happens during bean creation; calls use the prepared chain at runtime.
-- Self-invocation bypasses proxy-based AOP.
+transfer()
 
-## 10. Common mistakes
+Ã¢â€ â€œ
 
-1. **Thinking annotations execute logic.** Annotations are metadata that Spring interprets.
-2. **Thinking an aspect executes directly.** Spring turns applicable aspect definitions into runtime advisors and interceptors.
-3. **Thinking `proceed()` always calls the target method.** It normally continues to the next interceptor first.
-4. **Thinking `this.method()` is intercepted.** It bypasses the proxy.
-5. **Thinking every Spring bean is a proxy.** Spring only creates a proxy for a bean when applicable AOP infrastructure requires one.
+this.debit()
 
-## 11. Interview questions
+Ã¢â€ â€œ
 
-- **Why does Spring use proxies?** To apply cross-cutting behaviour without mixing it into business code.
-- **Why are advice types adapted to `MethodInterceptor`?** A common interceptor model lets Spring execute different advice types in one chain.
-- **Why can `@Transactional` fail during self-invocation?** The internal call bypasses the Spring proxy, so transaction advice is not invoked.
-- **What is the difference between an aspect and an advisor?** An aspect is a developer-facing abstraction; an advisor is Spring's runtime pairing of advice and a pointcut.
-- **Why does Spring create proxies during bean initialization?** It prepares interception once and exposes a bean reference that can apply the required advice at runtime.
+Target
 
-## 12. Mental model
 
-```text
-Developer declaration
-  |
-  v
-Aspect / transaction metadata
-  |
-  v
-Advisor and auto-proxy infrastructure
-  |
-  v
-Proxy for matching bean
-  |
-  v
-Ordered interceptor chain
-  |
-  v
-Target business method
-```
+The second call never reaches the proxy.
 
-## Summary
+Therefore
 
-Spring AOP applies cross-cutting concerns through proxies. During bean creation, Spring converts applicable AOP metadata into advisors, finds matching beans, and exposes proxies for them. At runtime, external calls pass through an ordered interceptor chain before reaching the target method. Understanding proxy boundaries, ordering, and self-invocation explains the behaviour of `@Transactional`, `@Cacheable`, `@Async`, `@Retryable`, and other AOP-based features.
+* TransactionInterceptor Ã¢ÂÅ’
+* CacheInterceptor Ã¢ÂÅ’
+* AsyncInterceptor Ã¢ÂÅ’
+* RetryInterceptor Ã¢ÂÅ’
+
+are skipped.
+
+
+**Solution:**
+
+PaymentService
+
+Ã¢â€ â€œ
+
+DebitService
+
+
+Bean-to-bean communication naturally goes through proxies.
+
+**Alternative:**
+
+* Self Injection
+* AopContext.currentProxy()
+* AspectJ
+
+
+---
+# 8. Transaction Infrastructure
+Developer writes: @EnableTransactionManagement
+
+
+Spring registers:
+
+TransactionInterceptor
+
+Ã¢â€ â€œ
+
+TransactionAdvisor
+
+Ã¢â€ â€œ
+
+AutoProxyCreator
+
+
+Infrastructure is created before application beans. Otherwise proxy creation is impossible.
+
+---
+# 9. Important Learnings
+* Spring AOP is proxy based.
+* Spring works with Advisors internally.
+* Every Advice becomes a MethodInterceptor.
+* Interceptor Chain executes sequentially.
+* Around Advice controls chain continuation.
+* Startup prepares everything.
+* Runtime simply executes the prepared chain.
+* BeanPostProcessor creates proxies.
+* ApplicationContext stores proxies.
+* Self invocation bypasses AOP.
+
+
+---
+# 10. Common Mistakes
+**Mistake 1:** Thinking annotations execute logic.
+
+Reality: Annotations are metadata. Spring interprets them.
+
+
+**Mistake 2:** Thinking Aspects execute directly.
+
+Reality: Spring converts Aspects into Advisors.
+
+
+**Mistake 3:** Thinking pjp.proceed() calls the business method.
+
+Reality: It continues the interceptor chain.
+
+
+**Mistake 4:** Thinking this.method(); is intercepted.
+
+Reality: Self invocation bypasses proxies.
+
+
+**Mistake 5:** Thinking ApplicationContext stores target objects.
+
+Reality: It usually stores proxies.
+
+
+---
+# 11. Interview Questions
+**Q:** Why does Spring use proxies?
+
+**A:** To separate cross-cutting concerns from business logic while keeping application code clean.
+
+
+**Q:** Why does Spring convert Advice into MethodInterceptors?
+
+**A:** To provide one common execution model regardless of the advice type.
+
+
+**Q:** Why doesn't @Transactional work during self invocation?
+
+**A:** Because internal method calls (this.method()) bypass the Spring proxy, so the interceptor chain is never executed.
+
+
+**Q:** What is the difference between Aspect and Advisor?
+
+**A:** Aspect is the developer abstraction. Advisor is Spring's runtime abstraction.
+
+
+**Q:** Why does Spring build proxies during startup?
+
+**A:** To avoid expensive annotation scanning during runtime.
+
+
+---
+# 12. My Mental Model
+Developer
+
+Ã¢â€ â€œ
+
+Aspect
+
+Ã¢â€ â€œ
+
+Spring
+
+Ã¢â€ â€œ
+
+Advisor
+
+Ã¢â€ â€œ
+
+AutoProxyCreator
+
+Ã¢â€ â€œ
+
+Proxy
+
+Ã¢â€ â€œ
+
+Interceptor Chain
+
+Ã¢â€ â€œ
+
+Business Method
+
+
+---
+**Module Summary:**
+
+Spring AOP is a proxy-based interception mechanism. During startup, Spring transforms developer-defined Aspects and annotations into Advisors and MethodInterceptors, creates proxies using AutoProxyCreator, and stores those proxies in the ApplicationContext. At runtime, every external method call flows through an ordered interceptor chain before reaching the target object. Understanding proxy boundaries, interceptor chaining, advisor ordering, and self-invocation explains the behavior of @Transactional, @Cacheable, @Async, @Retryable, and most AOP-based features in Spring.

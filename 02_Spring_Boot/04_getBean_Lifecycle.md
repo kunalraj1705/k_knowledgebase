@@ -1,64 +1,494 @@
-# The `getBean()` Lifecycle
+# The Complete getBean() Lifecycle
 
-## Purpose
 
-`getBean()` is the core lookup workflow used when Spring needs a managed bean. At startup, an `ApplicationContext` eagerly creates most non-lazy singleton beans through the same underlying creation path.
+## Learning Objective
 
-## High-level flow
 
-```text
-context.getBean(UserService.class)
-  |
-  v
-Check existing singleton cache
-  |
-  +-- found --> return it
-  |
-  `-- not found
-        |
-        v
-      Obtain BeanDefinition
-        |
-        v
-      Resolve dependencies
-        |
-        v
-      Instantiate bean
-        |
-        v
-      Populate properties
-        |
-        v
-      Initialize and post-process bean
-        |
-        `-- cache if singleton, then return
-```
+Understand the complete execution flow of Spring's getBean() method, from the moment a developer requests a bean until a fully initialized object is returned.
 
-## Creation phases
 
-1. **Resolve the definition and scope.** Spring finds the bean definition and determines whether it is singleton, prototype, or another scope.
-2. **Resolve dependencies.** It selects a constructor and obtains its arguments recursively.
-3. **Instantiate.** Spring invokes the selected constructor, usually through reflection.
-4. **Populate properties.** Field and setter injection, if used, occur after instantiation.
-5. **Initialize.** Aware callbacks, `BeanPostProcessor`s, `@PostConstruct`, `InitializingBean`, and custom init methods run in the relevant lifecycle phases. A post-processor may wrap the bean in a proxy.
-6. **Expose the result.** Spring caches a singleton or returns a fresh prototype instance.
+## Why is getBean() Important?
 
-## Recursive dependency resolution
 
-```text
+Every bean managed by Spring is ultimately created through the getBean() workflow.
+
+Whether Spring creates beans during startup or lazily at runtime, the underlying algorithm remains the same.
+
+Understanding this flow is the foundation for understanding:
+
+* Dependency Injection
+* Bean Lifecycle
+* Singleton Management
+* Circular Dependencies
+* Spring Internals
+
+
+## High-Level Architecture
+
+Developer
+
+
+Ã¢â€ â€œ
+
+
+ApplicationContext
+
+
+Ã¢â€ â€œ
+
+
+BeanFactory
+
+
+Ã¢â€ â€œ
+
+
+Bean Instance
+
+
+The developer interacts only with the ApplicationContext.
+
+The ApplicationContext delegates all bean management responsibilities to the BeanFactory.
+
+
+---
+## BeanFactory Architecture
+
+Spring builds its BeanFactory using layered abstractions.
+
+BeanFactory (Interface)
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+AbstractBeanFactory
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+AbstractAutowireCapableBeanFactory
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+DefaultListableBeanFactory
+
+
+Each layer adds one responsibility while reusing the previous implementation.
+
+
+---
+## Responsibilities
+
+
+BeanFactory (Interface)
+
+* Defines the contract for an IoC container.
+* Examples:
+
+  * getBean()
+  * containsBean()
+  * isSingleton()
+
+  It specifies what should happen.
+
+
+* AbstractBeanFactory
+
+  * Coordinates bean retrieval.
+  * Responsibilities:
+
+    * Receives getBean()
+    * Checks Singleton Cache
+    * Reads BeanDefinition
+    * Delegates bean creation
+    * Stores singleton beans
+
+   It does not create objects directly.
+
+* AbstractAutowireCapableBeanFactory
+
+  * Responsible for bean creation.
+  * Responsibilities:
+
+    * Select constructor
+    * Resolve dependencies
+    * Instantiate bean using Reflection
+    * Inject dependencies
+    * Populate properties
+    * Initialize bean
+    * Apply BeanPostProcessors
+* DefaultListableBeanFactory
+
+  * Concrete implementation used by Spring.
+  * Responsibilities:
+
+    * BeanDefinition registration
+    * Bean lookup
+    * Candidate resolution
+    * Type matching
+    * @Primary
+    * @Qualifier
+
+
+---
+## Internal Components of BeanFactory
+
+               BeanFactory
+
+                    Ã¢â€â€š
+
+     Ã¢â€Å’Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â¼Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€Â
+
+     Ã¢â€“Â¼                     Ã¢â€“Â¼                    Ã¢â€“Â¼
+
+BeanDefinition   Singleton Cache   Dependency Resolver
+
+  Registry
+
+
+---
+## BeanDefinition Registry
+
+
+Stores metadata required to create beans.
+
+Contains:
+
+* Bean Class
+* Scope
+* Constructor Metadata
+* Dependencies
+* Lazy
+* Primary
+* Qualifier
+
+Think of it as a Blueprint Library.
+
+
+---
+## Singleton Cache
+
+
+Stores already-created singleton bean instances.
+
+userService
+
+     Ã¢â€ â€œ
+
+UserService Instance
+
+
+emailService
+
+     Ã¢â€ â€œ
+
+EmailService Instance
+
+
+This is the first place Spring checks during getBean().
+
+---
+## Dependency Resolver
+
+
+Responsible for:
+
+
+Constructor selection
+
+Dependency discovery
+
+@Qualifier
+
+@Primary
+
+Recursive dependency resolution
+
+Circular dependency detection
+
+
+---
+## Complete getBean() Flow
+
+
+context.getBean(UserService)
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+ApplicationContext
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+AbstractBeanFactory.getBean()
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Check Singleton Cache
+
+
+       Ã¢â€â€š
+
+Found?
+
+Ã¢â€â€š
+
+Ã¢â€Å“Ã¢â€â‚¬Ã¢â€â‚¬ Yes
+
+Ã¢â€â€š      Ã¢â€â€š
+
+Ã¢â€â€š      Ã¢â€“Â¼
+
+Ã¢â€â€š   Return Existing Bean
+
+Ã¢â€â€š
+
+Ã¢â€â€Ã¢â€â‚¬Ã¢â€â‚¬ No
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Read BeanDefinition
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+AbstractAutowireCapableBeanFactory.createBean()
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Choose Constructor
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Resolve Constructor Dependencies
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Instantiate Bean
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Populate Properties
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Initialize Bean
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Return Bean
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+AbstractBeanFactory
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Store Singleton (if singleton scope)
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Return Bean to ApplicationContext
+
+
+       Ã¢â€â€š
+
+       Ã¢â€“Â¼
+
+Return Bean to Developer
+
+
+---
+## Recursive Dependency Resolution
+
+Eg:
+
+public UserService(
+
+       UserRepository repository,
+
+       NotificationService notificationService
+
+)
+
+
+Spring Performs:
+
+
 getBean(UserService)
-  -> obtain UserRepository
-  -> select NotificationService implementation
-     -> apply @Qualifier / @Primary when needed
-  -> construct and initialize UserService
-```
 
-Spring does not construct `UserService` until its required constructor arguments are available. Constructor cycles therefore cannot be resolved automatically; field or setter cycles have limited support in some configurations, but should generally be redesigned.
+Ã¢â€ â€œ
 
-## Singleton caching and circular references
+Need UserRepository
 
-Spring uses several singleton caches while creating beans. These caches can expose an early reference for certain singleton setter/field circular dependencies, including cases involving proxies. They do not make circular dependencies safe or solve constructor injection cycles.
+Ã¢â€ â€œ
 
-## Key takeaway
+getBean(UserRepository)
 
-`getBean()` is not simply object construction: it combines definition lookup, dependency resolution, lifecycle callbacks, post-processing, scopes, and caching.
+Ã¢â€ â€œ
+
+Create UserRepository
+
+Ã¢â€ â€œ
+
+Return
+
+Ã¢â€ â€œ
+
+Need NotificationService
+
+Ã¢â€ â€œ
+
+Find Candidates
+
+Ã¢â€ â€œ
+
+Apply @Qualifier / @Primary
+
+Ã¢â€ â€œ
+
+Create EmailService
+
+Ã¢â€ â€œ
+
+Return
+
+Ã¢â€ â€œ
+
+Create UserService
+
+Ã¢â€ â€œ
+
+Return
+
+
+Spring recursively calls getBean() until every dependency is satisfied.
+
+
+---
+## Bean Creation Phases
+
+Bean creation is not a single step.
+
+
+It consists of multiple phases:
+
+Read BeanDefinition
+
+Ã¢â€ â€œ
+
+Choose Constructor
+
+Ã¢â€ â€œ
+
+Resolve Dependencies
+
+Ã¢â€ â€œ
+
+Instantiate Object
+
+Ã¢â€ â€œ
+
+Inject Dependencies
+
+Ã¢â€ â€œ
+
+Populate Properties
+
+Ã¢â€ â€œ
+
+Initialize Bean
+
+Ã¢â€ â€œ
+
+Return Bean
+
+
+---
+## Mental Model
+
+Developer
+
+Ã¢â€ â€œ
+
+ApplicationContext
+
+Ã¢â€ â€œ
+
+AbstractBeanFactory
+
+Ã¢â€ â€œ
+
+Singleton Cache
+
+Ã¢â€ â€œ
+
+BeanDefinition Registry
+
+Ã¢â€ â€œ
+
+AbstractAutowireCapableBeanFactory
+
+Ã¢â€ â€œ
+
+Reflection
+
+Ã¢â€ â€œ
+
+Dependency Injection
+
+Ã¢â€ â€œ
+
+Bean Initialization
+
+Ã¢â€ â€œ
+
+Singleton Cache
+
+Ã¢â€ â€œ
+
+Developer receives Bean
