@@ -1,8 +1,8 @@
-## Learning Objective
+## Learning Objective**
 
 Understand how Spring creates proxies, executes interceptor chains, chooses between JDK Dynamic Proxy and CGLIB, and why self-invocation bypasses Spring AOP.
 
-# Module Overview
+# Module Overview**
 
 Client
 
@@ -39,56 +39,62 @@ AOP - Aspect-Oriented Programming
 
 ---
 
-# 1. Calling a Spring Bean
+# 1. Calling a Spring Bean**
 
 Suppose we have
 
 ```java
 @Service
+
 public class PaymentService {
 
     @Transactional
+
     @Cacheable
+
     public void transfer() {
+
         System.out.println("Business Logic");
+
     }
+
 }
-```
 
 Spring injects
 
-```java
 @Autowired
+
 private PaymentService paymentService;
-```
 
 Although it appears to be a normal object...
 
-It is actually a Proxy.
+It is actually **Proxy**
 
-So `paymentService.transfer();` does not call `PaymentService.transfer()` directly.
+so paymentService.transfer(); does not call PaymentService.transfer()
 
-Instead:
+instead
 
-```text
 Client
+
    │
+
    ▼
+
 Proxy.transfer()
-```
 
 ---
 
-# 2. Why a Proxy?
+# 2. Why a Proxy?**
 
 Without Proxy
 
-```text
 Client
+
    │
+
    ▼
+
 Business Method
-```
 
 Spring cannot execute
 
@@ -99,94 +105,117 @@ Spring cannot execute
 * Async
 * Metrics
 
-With a proxy
+**With a proxy**
 
-```text
 Client
+
    │
+
    ▼
+
 Proxy
+
    │
+
    ▼
+
 Interceptors
+
    │
+
    ▼
+
 Business Method
-```
 
 The proxy becomes the execution gateway.
 
 ---
 
-# 3. Interceptor Chain
+# 3. Interceptor Chain**
 
 Suppose
 
-```java
 @Transactional
+
 @Cacheable
-```
 
 Spring creates
 
-```text
 Proxy
+
    │
+
    ▼
+
 CacheInterceptor
+
    │
+
    ▼
+
 TransactionInterceptor
+
    │
+
    ▼
+
 PaymentService
-```
 
-Each interceptor performs:
+**Each interceptor performs**
 
-```text
 Before Logic
-   ↓
+
+↓
+
 Next
-   ↓
+
+↓
+
 After Logic
-```
 
-Conceptually:
+**Conceptually:**
 
-```java
 before();
+
 Object result = invocation.proceed();
+
 after();
+
 return result;
-```
 
 Every interceptor follows exactly the same algorithm.
 
 ---
 
-# 4. Chain of Responsibility Pattern
+# 4. Chain of Responsibility Pattern**
 
 Each interceptor never knows the complete chain.
 
-It only knows `invocation.proceed();`
+it only knows invocation.proceed();
 
-Execution:
+**Execution:**
 
-```text
 Security
-   │
-   ▼
-Cache
-   │
-   ▼
-Transaction
-   │
-   ▼
-Target
-```
 
-If an interceptor decides to stop, the chain terminates.
+    │
+
+    ▼
+
+Cache
+
+    │
+
+    ▼
+
+Transaction
+
+    │
+
+    ▼
+
+Target
+
+If an interceptor decides Stop then the chain terminates
 
 Examples:
 
@@ -197,78 +226,89 @@ Examples:
 
 ---
 
-# 5. ReflectiveMethodInvocation
+# 5. ReflectiveMethodInvocation**
 
-Spring stores invocation state inside `ReflectiveMethodInvocation`.
+Spring stores invocation state inside ReflectiveMethodInvocation
 
-Conceptually:
+**Conceptually:**
 
-```java
 class ReflectiveMethodInvocation {
-    Object target;
-    Method method;
-    Object[] arguments;
-    List<MethodInterceptor> interceptors;
-    int currentInterceptorIndex;
-}
-```
 
-This object represents one method invocation, not one bean.
+    Object target;
+
+    Method method;
+
+    Object[] arguments;
+
+    List<MethodInterceptor> interceptors;
+
+    int currentInterceptorIndex;
+
+}
+
+This object represents One method invocation Not One bean
 
 ---
 
-# 6. Why `currentInterceptorIndex` Starts at -1
+# 6. Why currentInterceptorIndex Starts at -1**
 
-Spring initializes `currentInterceptorIndex = -1;` instead of `0`.
+Spring initializes currentInterceptorIndex = -1; instead of 0
 
 Reason:
 
-Every invocation follows exactly the same algorithm:
+Every invocation follows exactly the same algorithm
 
-```java
 {
-    index++;
-    invoke(interceptor[index]);
+
+  index++;
+
+  invoke(interceptor[index]);
+
 }
-```
 
 Execution:
 
-```text
 -1
+
  │
+
  ▼
+
 0 → Security
+
 1 → Cache
+
 2 → Transaction
+
 3 → Target
-```
 
 ---
 
-# 7. `proceed()`
+# 7. proceed()**
 
 Conceptually:
 
-```java
 Object proceed() {
+
     currentInterceptorIndex++;
 
-    if (moreInterceptors) {
+    if(moreInterceptors){
+
         invoke(nextInterceptor);
-    } else {
+
+    }else{
+
         invokeTargetMethod();
+
     }
+
 }
-```
 
-Every interceptor simply executes:
+Every interceptor simply executes
 
-```java
 invocation.proceed();
-```
 
-It never knows:
+It never knows
 
 * previous interceptor
 * next interceptor
@@ -278,381 +318,371 @@ Traversal is centralized.
 
 ---
 
-# 8. Exception Propagation
+# 8. Exception Propagation**
 
 Transaction interceptor
 
-```java
 beginTransaction();
 
-try {
+try{
+
     Object result = invocation.proceed();
+
     commit();
-} catch (Exception e) {
-    rollback();
-    throw e;
+
 }
-```
+
+catch(Exception e){
+
+    rollback();
+
+    throw e;
+
+}
 
 Why rethrow?
 
-Because the caller must know that the operation failed.
+Because the caller must know The operation failed.
 
-Otherwise:
+Otherwise
 
-```java
 paymentService.transfer();
+
 System.out.println("Success");
-```
 
 ---
 
-# 9. Runtime Execution
+# 9. Runtime Execution**
 
-```text
 Client
-   │
-   ▼
+
+↓
+
 Proxy
-   │
-   ▼
+
+↓
+
 Security
-   │
-   ▼
+
+↓
+
 Cache
-   │
-   ▼
+
+↓
+
 Transaction
-   │
-   ▼
+
+↓
+
 Business Method
-   │
-   ▼
+
+↓
+
 Transaction Commit
-   │
-   ▼
+
+↓
+
 Return
-   │
-   ▼
+
+↓
+
 Client
-```
 
 ---
 
-# 10. JDK Dynamic Proxy
+# 10. JDK Dynamic Proxy**
 
 Suppose
 
-```java
 public interface PaymentService {
+
     void transfer();
+
 }
-```
 
 Implementation:
 
-```java
 public class PaymentServiceImpl implements PaymentService {
+
 }
-```
 
 JDK creates
 
-```java
 class $Proxy0 implements PaymentService {
-    InvocationHandler handler;
-}
-```
 
-It implements the interface.
+    InvocationHandler handler;
+
+}
+
+It implements the interface
 
 ---
 
-# 11. Why JDK Proxy Cannot Proxy Classes
+# 11. Why JDK Proxy Cannot Proxy Classes**
 
-```java
 public class PaymentService {
+
 }
-```
 
 JDK would need
 
-```java
 class Proxy implements PaymentService
-```
 
-This is not possible because `Class ≠ Interface`.
+This is not possible because Class ≠ Interface
 
-Java allows:
+Java allows
 
 * extends Class
 * implements Interface
 
-Java does not allow:
+Java doesn't allow
 
 * implements Class
 
-Therefore,
+Therefore
 
 JDK Proxy only works for interfaces.
 
 ---
 
-# 12. CGLIB
+# 12. CGLIB**
 
-Spring solves this using CGLIB.
+Spring solves this using CGLIB
 
-Instead of implementing interfaces, it generates subclasses.
+Instead of implementing interfaces It generates subclasses.
 
 Original:
 
-```java
 public class PaymentService {
+
 }
-```
 
 Runtime:
 
-```java
 class PaymentService$$Enhancer extends PaymentService {
+
 }
-```
 
 Now interception happens by
 
-```java
 @Override
-transfer() {
+
+transfer(){
+
     before();
+
     super.transfer();
+
     after();
+
 }
-```
 
 ---
 
-# 13. Final Class Limitation
+# 13. Final Class Limitation**
 
 Suppose:
 
-```java
 public final class PaymentService {
+
 }
-```
 
 CGLIB tries:
 
-```java
 class PaymentService$$Enhancer extends PaymentService
-```
 
-This fails because Java forbids extending a final class.
+This fails because JAVA forbids extending final class
 
-Result: No Proxy.
+Result: No Proxy
 
 ---
 
-# 14. Final Method Limitation
+# 14. Final Method Limitation**
 
 Suppose:
 
-```java
 public class PaymentService {
-    public final void transfer() {
+
+    public final void transfer(){
+
     }
+
 }
-```
 
-CGLIB tries to override `transfer()` but it fails because Java does not allow overriding a final method.
+CGLIB tries to override transfer() but it fails because JAVA doesn't allow overriding final method.
 
-Result: No Proxy.
+Result: No Proxy
 
 ---
 
-# 15. Spring's Proxy Selection
+# 15. Spring's Proxy Selection**
 
 Decision Tree
 
-```text
 Does Bean Implement Interface?
+
         │
+
    ┌────┴─────┐
+
    │          │
+
   Yes         No
+
    │          │
+
    ▼          ▼
+
 JDK Proxy   CGLIB
-```
 
 Spring prefers the simplest mechanism that satisfies the requirement.
 
 ---
 
-# 16. Forcing CGLIB
+# 16. Forcing CGLIB**
 
 Spring allows
 
-* `EnableTransactionManagement(proxyTargetClass = true)`
-* `@EnableAspectJAutoProxy(proxyTargetClass = true)`
+* EnableTransactionManagement(proxyTargetClass = true)
+* @EnableAspectJAutoProxy(proxyTargetClass = true)
 
-Even if interfaces exist, Spring always generates CGLIB proxies.
+Even if interfaces exist Spring always generates CGLIB proxies.
 
 ---
 
-# 17. Injection Differences
+# 17. Injection Differences**
 
-JDK Proxy:
+**JDK Proxy:**
 
-```java
 $Proxy0 implements PaymentService
-```
 
 Valid:
 
-```java
 @Autowired
+
 PaymentService service;
-```
 
 Invalid:
 
-```java
 @Autowired
+
 PaymentServiceImpl service;
-```
 
 Because:
 
-```text
 $Proxy0 IS NOT PaymentServiceImpl
-```
 
-CGLIB:
+**CGLIB:**
 
-```java
 PaymentService$$Enhancer extends PaymentService
-```
 
-Both work:
+Both Works:
 
-```java
 @Autowired
+
 PaymentService service;
 
 @Autowired
+
 PaymentServiceImpl service;
-```
 
-Because:
-
-```text
-Enhancer IS-A PaymentServiceImpl
-```
+Because: Enhancer IS-A PaymentServiceImpl
 
 ---
 
-# 18. Self Invocation
+# 18. Self Invocation**
 
 Suppose:
 
-```java
-public void pay() {
+public void pay(){
+
     this.transfer();
+
 }
-```
 
 Execution:
 
-```text
 pay()
-   ↓
+
+↓
+
 this.transfer()
-   ↓
+
+↓
+
 Original Method
-```
 
 The proxy is bypassed. No interceptor executes.
 
-Because the proxy works on the external call, that is, incoming calls from outside of the proxy class.
+Because proxy will work on the external call (incoming calls from outside of the proxy class)
 
 Therefore:
 
-```java
 @Transactional
+
 @Cacheable
+
 @Async
-```
 
 do not work.
 
 ---
 
-# 19. Why?
+# 19. Why?**
 
-Spring AOP intercepts calls entering the proxy.
+Spring AOP intercepts Calls entering the proxy
 
-It does not monitor every JVM method invocation.
+It does NOT monitor every JVM method invocation.
 
-Once execution reaches the target object,
+Once execution reaches the target object
 
-```java
-this.transfer();
-```
-
-is a normal Java call.
+this.transfer() is a normal Java call.
 
 ---
 
-# 20. Self Injection Workaround
+# 20. Self Injection Workaround**
 
-```java
 @Autowired
+
 private PaymentService self;
-```
 
 Execution:
 
-```text
 pay()
-   ↓
+
+↓
+
 self.transfer()
-   ↓
+
+↓
+
 Proxy
-   ↓
+
+↓
+
 Interceptors
-   ↓
+
+↓
+
 Target
-```
 
 Because:
 
-```text
 self = Proxy
-```
 
 ---
 
-# 21. Runtime Class Types
+# 21. Runtime Class Types**
 
 JDK:
 
-```java
 paymentService.getClass()
-```
 
-returns something similar to:
-
-```text
-jdk.proxy2.$Proxy45
-```
+return something similar to: jdk.proxy2.$Proxy45
 
 CGLIB:
 
-returns:
-
-```text
-PaymentService$$EnhancerBySpringCGLIB
-```
+returns: PaymentService$$EnhancerBySpringCGLIB
 
 The injected bean is not the original implementation class.
 
@@ -660,56 +690,107 @@ It is the generated proxy.
 
 ---
 
-# End-to-End Architecture
+# End-to-End Architecture**
 
-```text
-Spring Startup
-   │
-   ▼
-Scan Bean Definitions
-   │
-   ▼
-Detect AOP Annotations
-   │
-   ▼
-Build Advisor List
-   │
-   ▼
-Bean Implements Interface?
-   │
-   ├── Yes ──> JDK Dynamic Proxy
-   │
-   └── No ───> CGLIB Proxy Generation
-   │
-   ▼
-Create Proxy Bean
-   │
-   ▼
-Store Interceptor Chain
-```
+                Spring Startup
 
-```text
-Runtime Execution
+                       │
+
+                       ▼
+
+              Scan Bean Definitions
+
+                       │
+
+                       ▼
+
+             Detect AOP Annotations
+
+                       │
+
+                       ▼
+
+              Build Advisor List
+
+                       │
+
+                       ▼
+
+         Bean Implements Interface?
+
+               │               │
+
+             Yes               No
+
+              │                │
+
+              ▼                ▼
+
+        JDK Dynamic        CGLIB Proxy
+
+            Proxy            Generation
+
+               │                │
+
+               └──────┬─────────┘
+
+                      ▼
+
+               Create Proxy Bean
+
+                      │
+
+                      ▼
+
+            Store Interceptor Chain
+
+                      │
+
+                      ▼
+
+========================================
+
+             Runtime Execution
 
 Client
+
    │
+
    ▼
+
 Proxy
+
    │
+
    ▼
+
 Security
+
    │
+
    ▼
+
 Cache
+
    │
+
    ▼
+
 Transaction
+
    │
+
    ▼
+
 Business Method
+
    │
+
    ▼
+
 Return Result
-```
+
+---
 
 CGLIB exists to overcome the limitation of JDK Dynamic Proxy. JDK proxies can only create proxy implementations for interfaces, whereas many Spring beans are concrete classes without interfaces. CGLIB generates a subclass of the target class at runtime and overrides its methods to insert interception logic. This allows Spring AOP to work even when no interface is present, while still keeping business logic separate from infrastructure concerns.
+```
