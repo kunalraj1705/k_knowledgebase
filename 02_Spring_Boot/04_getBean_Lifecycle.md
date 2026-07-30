@@ -310,6 +310,7 @@ Return Bean to Developer
 
 Eg:
 
+```java
 public UserService(
 
         UserRepository repository,
@@ -451,3 +452,4 @@ Singleton Cache
 ↓
 
 Developer receives Bean
+```

@@ -18,6 +18,7 @@ Examples:
 
 **Without AOP:**
 
+```java
 public void transfer() {
 
     authenticate();
@@ -532,3 +533,4 @@ Business Method
 **Module Summary:**
 
 Spring AOP is a proxy-based interception mechanism. During startup, Spring transforms developer-defined Aspects and annotations into Advisors and MethodInterceptors, creates proxies using AutoProxyCreator, and stores those proxies in the ApplicationContext. At runtime, every external method call flows through an ordered interceptor chain before reaching the target object. Understanding proxy boundaries, interceptor chaining, advisor ordering, and self-invocation explains the behaviour of @Transactional, @Cacheable, @Async, @Retryable, and most AOP-based features in Spring.
+```

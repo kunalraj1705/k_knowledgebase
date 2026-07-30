@@ -204,6 +204,7 @@ Reflection never makes this decision.
 
 **Suppose:**
 
+```java
 public UserService(
 
     UserRepository repository,
@@ -341,3 +342,4 @@ Reflection executes the BeanFactory's decisions.
 **Interview Explanation**
 
 Spring uses Reflection because it cannot know application-specific classes while the framework is being built. During compilation, Java source code is converted into bytecode. The ClassLoader loads this bytecode into the JVM, creating a Class<?> object. Spring scans these classes, reads annotations, and creates BeanDefinitions. When a bean is requested, the BeanFactory selects the appropriate constructor, recursively resolves all dependencies, and finally uses Reflection to invoke the constructor and create the bean instance. Reflection performs object creation, while the BeanFactory makes all bean creation decisions. After creation, Spring completes initialization and lifecycle processing before returning the fully initialized bean.
+```

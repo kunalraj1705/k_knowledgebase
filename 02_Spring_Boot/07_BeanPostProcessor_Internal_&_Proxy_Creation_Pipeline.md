@@ -15,6 +15,7 @@ By the end of this module, you should understand:
 
 Consider the following bean:
 
+```java
 @Service
 
 public class PaymentService {
@@ -771,3 +772,4 @@ Spring parses annotations during component scanning and stores them as metadata 
 **Final Takeaway**
 
 Spring's AOP infrastructure is built on reusable abstractions. It discovers metadata once, registers reusable Advisors, creates a single proxy per bean, and composes an ordered interceptor chain based on matching Pointcuts. This separation of concerns keeps the framework performant, extensible, and maintainable.
+```
