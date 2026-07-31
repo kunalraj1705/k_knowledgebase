@@ -23,6 +23,7 @@ public void transfer() {
     commit();
 }
 
+```text
 Every service repeats the same infrastructure code.
 
 Problems:
