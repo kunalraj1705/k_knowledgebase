@@ -20,9 +20,9 @@ Java Reflection solves this problem.
 
 ---
 
-## Architecture / Components?
+## Architecture Components?
 
-Java Compilation \& Runtime Flow
+Java Compilation & Runtime Flow
 
 UserService.java
 
@@ -150,7 +150,7 @@ Singleton Cache
 
 ## Internal Working
 
-**Step 1 — Class Loading**
+Step 1 — Class Loading
 
 UserService.class
 
@@ -168,7 +168,7 @@ At this stage, only the class metadata exists.
 
 No bean has been created yet.
 
-**Step 2 — Spring Creates BeanDefinition**
+Step 2 — Spring Creates BeanDefinition
 
 Spring scans application classes.
 
@@ -180,7 +180,7 @@ It reads annotations like:
 
 Using the loaded Class<?> object, Spring creates a BeanDefinition containing all metadata required for bean creation.
 
-**Step 3 — Bean Requested**
+Step 3 — Bean Requested
 
 Developer writes:
 
@@ -188,7 +188,7 @@ context.getBean(UserService.class);
 
 BeanFactory starts the bean creation process.
 
-**Step 4 — Constructor Selection**
+Step 4 — Constructor Selection
 
 BeanFactory decides which constructor should be used.
 
@@ -200,9 +200,9 @@ Rules:
 
 Reflection never makes this decision.
 
-**Step 5 — Dependency Resolution**
+Step 5 — Dependency Resolution
 
-**Suppose:**
+Suppose:
 
 ```java
 public UserService(
@@ -235,7 +235,7 @@ getBean(EmailService)
 
 This process continues until the complete dependency graph is resolved.
 
-**Step 6 — Reflection Creates Object**
+Step 6 — Reflection Creates Object
 
 Once all constructor arguments are available:
 
@@ -251,7 +251,7 @@ constructor.newInstance(
 
 Bean instance is created.
 
-**Step 7 — Spring Continues Bean Lifecycle**
+Step 7 — Spring Continues Bean Lifecycle
 
 After Reflection creates the object:
 
@@ -265,9 +265,9 @@ are performed by Spring.
 
 ---
 
-## **Mental Model**
+## Mental Model
 
-**Java Responsibilities**
+Java Responsibilities
 
 Compiler
 
@@ -285,7 +285,7 @@ Class Object
 
 Java is responsible for loading classes.
 
-**Spring Responsibilities**
+Spring Responsibilities
 
 Component Scan
 
@@ -313,9 +313,9 @@ Spring is responsible for managing beans.
 
 ---
 
-## Reflection vs BeanFactory**
+## Reflection vs BeanFactory
 
-**BeanFactory (Brain)**
+BeanFactory (Brain)
 
 Responsible for deciding:
 
@@ -326,7 +326,7 @@ Responsible for deciding:
 * Bean lifecycle
 * Singleton management
 
-**Reflection (Hands)**
+Reflection (Hands)
 
 Responsible for executing:
 
@@ -339,7 +339,7 @@ Reflection executes the BeanFactory's decisions.
 
 ---
 
-**Interview Explanation**
+Interview Explanation
 
 Spring uses Reflection because it cannot know application-specific classes while the framework is being built. During compilation, Java source code is converted into bytecode. The ClassLoader loads this bytecode into the JVM, creating a Class<?> object. Spring scans these classes, reads annotations, and creates BeanDefinitions. When a bean is requested, the BeanFactory selects the appropriate constructor, recursively resolves all dependencies, and finally uses Reflection to invoke the constructor and create the bean instance. Reflection performs object creation, while the BeanFactory makes all bean creation decisions. After creation, Spring completes initialization and lifecycle processing before returning the fully initialized bean.
 ```

@@ -41,11 +41,11 @@ This module answers these questions.
 
 ---
 
-**1. Metadata is Parsed Once**
+1. Metadata is Parsed Once
 
 Spring separates startup into two phases.
 
-**Phase 1 — Metadata Discovery**
+Phase 1 — Metadata Discovery
 
 .class
 
@@ -79,7 +79,7 @@ No Java object exists yet.
 
 Only metadata is collected.
 
-**Phase 2 — Bean Creation**
+Phase 2 — Bean Creation
 
 Reflection
 
@@ -111,7 +111,7 @@ Instead of scanning annotations again, Spring reuses the metadata collected earl
 
 ---
 
-**2. BeanPostProcessor**
+2. BeanPostProcessor
 
 A BeanPostProcessor is a Spring extension point.
 
@@ -148,9 +148,9 @@ Examples:
 
 ---
 
-**3. @PostConstruct vs BeanPostProcessor**
+3. @PostConstruct vs BeanPostProcessor
 
-**@PostConstruct**
+@PostConstruct
 
 Purpose: Initialize the bean after dependency injection.
 
@@ -178,7 +178,7 @@ public void init() {
 
 }
 
-**BeanPostProcessor**
+BeanPostProcessor
 
 Purpose: Allow Spring to enhance or replace the bean.
 
@@ -194,7 +194,7 @@ Proxy Created (if required)
 
 Runs outside the bean.
 
-**Comparison:**
+Comparison:
 
 | @PostConstruct             | BeanPostProcessor           |
 
@@ -210,7 +210,7 @@ Runs outside the bean.
 
 ---
 
-**4. Why Proxies are Created**
+4. Why Proxies are Created
 
 Suppose a bean contains:@Transactional
 
@@ -252,7 +252,7 @@ This creates unnecessary complexity.
 
 ---
 
-**5. One Proxy with Multiple Interceptors**
+5. One Proxy with Multiple Interceptors
 
 Spring creates one proxy.
 
@@ -292,7 +292,7 @@ After
 
 ---
 
-**6. Execution Order Matters**
+6. Execution Order Matters
 
 Example:
 
@@ -326,7 +326,7 @@ Reason:
 
 ---
 
-**7. Why @Transactional Doesn't Work Inside @PostConstruct**
+7. Why @Transactional Doesn't Work Inside @PostConstruct
 
 Example:
 
@@ -389,7 +389,7 @@ Original Object
 
 No TransactionInterceptor
 
-**Same reason for Self Invocation**
+Same reason for Self Invocation
 
 public void save() {
 
@@ -401,7 +401,7 @@ Compiles to: this.transfer();
 
 Again, proxy is bypassed.
 
-**External Bean**
+External Bean
 
 @Autowired
 
@@ -419,7 +419,7 @@ Now @Transactional works.
 
 ---
 
-**8. Advice**
+8. Advice
 
 Advice answers: What should execute?
 
@@ -434,7 +434,7 @@ One interceptor instance is reused across many methods.
 
 ---
 
-**9. Pointcut**
+9. Pointcut
 
 Pointcut answers: Where should the behavior execute?
 
@@ -450,7 +450,7 @@ A Pointcut contains matching rules only.
 
 ---
 
-**10. Advisor**
+10. Advisor
 
 An Advisor combines: Pointcut + Advice
 
@@ -506,7 +506,7 @@ CacheInterceptor
 
 ---
 
-**11. AnnotationAwareAspectJAutoProxyCreator**
+11. AnnotationAwareAspectJAutoProxyCreator
 
 This is Spring's generic proxy creator.
 
@@ -514,7 +514,7 @@ Its responsibility is not to understand transactions or caching.
 
 Instead it understands Advisors.
 
-**Algorithm**
+Algorithm
 
 Receive bean.
 
@@ -579,7 +579,7 @@ Instead it asks:
 
 ---
 
-**12. Complete Startup Flow**
+12. Complete Startup Flow
 
 Application Starts
 
@@ -699,7 +699,7 @@ Return Bean
 
 ---
 
-**Internal Working Summary**
+Internal Working Summary
 
 @Component Scan
 
@@ -765,11 +765,11 @@ Spring Container Stores Proxy
 
 ---
 
-**Interview Explanation (2–3 Minutes)**
+Interview Explanation (2–3 Minutes)
 
 Spring parses annotations during component scanning and stores them as metadata in BeanDefinitions. During bean creation, Reflection instantiates the object, dependencies are injected, and @PostConstruct performs bean-specific initialization. Next, BeanPostProcessors receive the fully initialized bean. The AnnotationAwareAspectJAutoProxyCreator evaluates all registered Advisors against the bean. Each Advisor combines a Pointcut (which methods match) with Advice (the interceptor to execute). If no Advisors match, Spring returns the original bean. If one or more Advisors match, Spring creates a single proxy and attaches the matching interceptors as an ordered chain. At runtime, method invocations flow through this interceptor chain before reaching the target object. This architecture keeps Spring extensible, efficient, and compliant with the Open/Closed Principle.
 
-**Final Takeaway**
+Final Takeaway
 
 Spring's AOP infrastructure is built on reusable abstractions. It discovers metadata once, registers reusable Advisors, creates a single proxy per bean, and composes an ordered interceptor chain based on matching Pointcuts. This separation of concerns keeps the framework performant, extensible, and maintainable.
 ```

@@ -1,8 +1,8 @@
-## Learning Objective**
+## Learning Objective
 
 Understand how Spring creates proxies, executes interceptor chains, chooses between JDK Dynamic Proxy and CGLIB, and why self-invocation bypasses Spring AOP.
 
-# Module Overview**
+# Module Overview
 
 Client
 
@@ -39,7 +39,7 @@ AOP - Aspect-Oriented Programming
 
 ---
 
-# 1. Calling a Spring Bean**
+# 1. Calling a Spring Bean
 
 Suppose we have
 
@@ -68,7 +68,7 @@ private PaymentService paymentService;
 
 Although it appears to be a normal object...
 
-It is actually **Proxy**
+It is actually Proxy
 
 so paymentService.transfer(); does not call PaymentService.transfer()
 
@@ -84,7 +84,7 @@ Proxy.transfer()
 
 ---
 
-# 2. Why a Proxy?**
+# 2. Why a Proxy?
 
 Without Proxy
 
@@ -105,7 +105,7 @@ Spring cannot execute
 * Async
 * Metrics
 
-**With a proxy**
+With a proxy
 
 Client
 
@@ -131,7 +131,7 @@ The proxy becomes the execution gateway.
 
 ---
 
-# 3. Interceptor Chain**
+# 3. Interceptor Chain
 
 Suppose
 
@@ -161,7 +161,7 @@ TransactionInterceptor
 
 PaymentService
 
-**Each interceptor performs**
+Each interceptor performs
 
 Before Logic
 
@@ -173,7 +173,7 @@ Next
 
 After Logic
 
-**Conceptually:**
+Conceptually:
 
 before();
 
@@ -187,13 +187,13 @@ Every interceptor follows exactly the same algorithm.
 
 ---
 
-# 4. Chain of Responsibility Pattern**
+# 4. Chain of Responsibility Pattern
 
 Each interceptor never knows the complete chain.
 
 it only knows invocation.proceed();
 
-**Execution:**
+Execution:
 
 Security
 
@@ -226,11 +226,11 @@ Examples:
 
 ---
 
-# 5. ReflectiveMethodInvocation**
+# 5. ReflectiveMethodInvocation
 
 Spring stores invocation state inside ReflectiveMethodInvocation
 
-**Conceptually:**
+Conceptually:
 
 class ReflectiveMethodInvocation {
 
@@ -250,7 +250,7 @@ This object represents One method invocation Not One bean
 
 ---
 
-# 6. Why currentInterceptorIndex Starts at -1**
+# 6. Why currentInterceptorIndex Starts at -1
 
 Spring initializes currentInterceptorIndex = -1; instead of 0
 
@@ -284,7 +284,7 @@ Execution:
 
 ---
 
-# 7. proceed()**
+# 7. proceed()
 
 Conceptually:
 
@@ -318,7 +318,7 @@ Traversal is centralized.
 
 ---
 
-# 8. Exception Propagation**
+# 8. Exception Propagation
 
 Transaction interceptor
 
@@ -352,7 +352,7 @@ System.out.println("Success");
 
 ---
 
-# 9. Runtime Execution**
+# 9. Runtime Execution
 
 Client
 
@@ -390,7 +390,7 @@ Client
 
 ---
 
-# 10. JDK Dynamic Proxy**
+# 10. JDK Dynamic Proxy
 
 Suppose
 
@@ -418,7 +418,7 @@ It implements the interface
 
 ---
 
-# 11. Why JDK Proxy Cannot Proxy Classes**
+# 11. Why JDK Proxy Cannot Proxy Classes
 
 public class PaymentService {
 
@@ -445,7 +445,7 @@ JDK Proxy only works for interfaces.
 
 ---
 
-# 12. CGLIB**
+# 12. CGLIB
 
 Spring solves this using CGLIB
 
@@ -479,7 +479,7 @@ transfer(){
 
 ---
 
-# 13. Final Class Limitation**
+# 13. Final Class Limitation
 
 Suppose:
 
@@ -497,7 +497,7 @@ Result: No Proxy
 
 ---
 
-# 14. Final Method Limitation**
+# 14. Final Method Limitation
 
 Suppose:
 
@@ -515,7 +515,7 @@ Result: No Proxy
 
 ---
 
-# 15. Spring's Proxy Selection**
+# 15. Spring's Proxy Selection
 
 Decision Tree
 
@@ -539,7 +539,7 @@ Spring prefers the simplest mechanism that satisfies the requirement.
 
 ---
 
-# 16. Forcing CGLIB**
+# 16. Forcing CGLIB
 
 Spring allows
 
@@ -550,9 +550,9 @@ Even if interfaces exist Spring always generates CGLIB proxies.
 
 ---
 
-# 17. Injection Differences**
+# 17. Injection Differences
 
-**JDK Proxy:**
+JDK Proxy:
 
 $Proxy0 implements PaymentService
 
@@ -572,7 +572,7 @@ Because:
 
 $Proxy0 IS NOT PaymentServiceImpl
 
-**CGLIB:**
+CGLIB:
 
 PaymentService$$Enhancer extends PaymentService
 
@@ -590,7 +590,7 @@ Because: Enhancer IS-A PaymentServiceImpl
 
 ---
 
-# 18. Self Invocation**
+# 18. Self Invocation
 
 Suppose:
 
@@ -628,7 +628,7 @@ do not work.
 
 ---
 
-# 19. Why?**
+# 19. Why?
 
 Spring AOP intercepts Calls entering the proxy
 
@@ -640,7 +640,7 @@ this.transfer() is a normal Java call.
 
 ---
 
-# 20. Self Injection Workaround**
+# 20. Self Injection Workaround
 
 @Autowired
 
@@ -672,7 +672,7 @@ self = Proxy
 
 ---
 
-# 21. Runtime Class Types**
+# 21. Runtime Class Types
 
 JDK:
 
@@ -690,7 +690,7 @@ It is the generated proxy.
 
 ---
 
-# End-to-End Architecture**
+# End-to-End Architecture
 
                 Spring Startup
 

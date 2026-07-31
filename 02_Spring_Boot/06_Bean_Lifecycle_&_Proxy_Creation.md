@@ -82,7 +82,7 @@ Bean Returned
 
 ---
 
-# Stage 1 — Reflection Creates a Java Object**
+# Stage 1 — Reflection Creates a Java Object
 
 Reflection simply invokes the constructor.
 
@@ -96,7 +96,7 @@ At this stage:
 
 But Spring has not yet finished processing it.
 
-**Stage 2 — @PostConstruct**
+Stage 2 — @PostConstruct
 
 Before exposing the object, Spring executes initialization callbacks.
 
@@ -130,7 +130,7 @@ Returning a partially initialized object could lead to:
 
 Spring guarantees that every bean is fully initialized before it becomes available.
 
-**Stage 3 — BeanPostProcessor**
+Stage 3 — BeanPostProcessor
 
 Now Spring asks:
 
@@ -146,7 +146,7 @@ for (BeanPostProcessor processor : processors) {
 
 Every processor gets an opportunity to inspect or replace the bean.
 
-**Why BeanPostProcessor Exists ?**
+Why BeanPostProcessor Exists ?
 
 Without extension points:
 
@@ -196,9 +196,9 @@ BeanPostProcessor Chain
 
 This keeps the framework open for extension while keeping the core simple.
 
-**Proxy Creation**
+Proxy Creation
 
-* **Suppose:**
+* Suppose:
 
      @Service
 
@@ -212,7 +212,7 @@ This keeps the framework open for extension while keeping the core simple.
 
 Spring does not usually return the original object.
 
-* **Instead:**
+* Instead:
 
      Developer
 
@@ -230,7 +230,7 @@ Spring does not usually return the original object.
 
 The proxy adds behavior before and after the business method.
 
-* **Why Use a Proxy?**
+* Why Use a Proxy?
 
 Instead of modifying your source code:
 
@@ -256,8 +256,8 @@ proxy.transfer() {
 
 Your business class remains focused on business logic.
 
-* **Two Types of Proxies**
-1. **JDK Dynamic Proxy**
+* Two Types of Proxies
+1. JDK Dynamic Proxy
 
    PaymentService
 
@@ -271,9 +271,9 @@ Your business class remains focused on business logic.
 
 Impl         TransactionProxy
 
-**2. CGLIB Proxy**
+2. CGLIB Proxy
 
-**Used when no interface exists.**
+Used when no interface exists.
 
 PaymentService
 
@@ -287,23 +287,23 @@ The proxy subclasses the original class and overrides methods.
 
 ---
 
-# Java Constraints**
+# Java Constraints
 
 Spring operates within Java's rules.
 
-* **Final Class**
+* Final Class
 
   * Eg:
 
     * final class PaymentService
   * Cannot be subclassed.
   * No CGLIB proxy can be created.
-* **Final Method**
+* Final Method
 
   * public final void transfer()
   * Cannot be overridden.
   * Proxy cannot intercept it.
-* **Private Method**
+* Private Method
 
   * Eg:
 
@@ -314,7 +314,7 @@ Spring operates within Java's rules.
 
 ---
 
-# Self Invocation**
+# Self Invocation
 
 Consider:
 
@@ -372,7 +372,7 @@ Result: saveOrder() is not intercepted.
 
 ---
 
-# Why Another Bean Works**
+# Why Another Bean Works
 
 Instead:
 
@@ -410,7 +410,7 @@ saveOrder()
 
 The call crosses a bean boundary. Therefore the proxy intercepts it.
 
-# Self Injection**
+# Self Injection
 
 Some developers write:
 
@@ -452,7 +452,7 @@ The preferred solution is to separate responsibilities into different beans.
 
 ---
 
-# Public vs Private vs Self Invocation**
+# Public vs Private vs Self Invocation
 
 | Scenario                     | Can Override? | Goes Through Proxy? | Intercepted? |
 
@@ -506,9 +506,9 @@ Singleton Cache
 
 ---
 
-# Mental Models**
+# Mental Models
 
-1. **Bean Lifecycle**
+1. Bean Lifecycle
 
 Constructor
 
@@ -528,7 +528,7 @@ Enhancement
 
 Ready Bean
 
-**2. Proxy Pattern**
+2. Proxy Pattern
 
 Developer
 
@@ -542,7 +542,7 @@ Original Object
 
 Developer never interacts with the original object directly.
 
-**3. Self Invocation**
+3. Self Invocation
 
 Proxy
 
@@ -560,7 +560,7 @@ Further calls stay inside the original object.
 
 ---
 
-# **Interview Answer**
+# Interview Answer
 
 Spring first creates a Java object using Reflection. At this point, it is not yet a fully managed Spring Bean. The framework executes lifecycle callbacks like @PostConstruct to complete initialization. Next, Spring passes the bean through a chain of BeanPostProcessors, which can inspect or replace the bean. If annotations such as @Transactional are detected, Spring creates a proxy instead of returning the original object. The proxy intercepts method calls to add cross-cutting behavior such as transactions, security, caching, or logging. Spring uses JDK Dynamic Proxies for interface-based beans and CGLIB subclass proxies for concrete classes. Because proxies rely on Java inheritance or interfaces, they cannot intercept final or private methods. Additionally, self-invocation (this.method()) bypasses the proxy, which is why proxy-based features work best across bean boundaries rather than within the same class.
 ```
