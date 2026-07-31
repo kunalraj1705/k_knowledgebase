@@ -554,6 +554,7 @@ Spring Container Stores Proxy
 ## Interview Explanation (2–3 Minutes)
 
 Spring parses annotations during component scanning and stores them as metadata in BeanDefinitions. During bean creation, Reflection instantiates the object, dependencies are injected, and @PostConstruct performs bean-specific initialization. Next, BeanPostProcessors receive the fully initialized bean. The AnnotationAwareAspectJAutoProxyCreator evaluates all registered Advisors against the bean. Each Advisor combines a Pointcut (which methods match) with Advice (the interceptor to execute). If no Advisors match, Spring returns the original bean. If one or more Advisors match, Spring creates a single proxy and attaches the matching interceptors as an ordered chain. At runtime, method invocations flow through this interceptor chain before reaching the target object. This architecture keeps Spring extensible, efficient, and compliant with the Open/Closed Principle.
+
 ---
 ## Final Takeaway
 Spring's AOP infrastructure is built on reusable abstractions. It discovers metadata once, registers reusable Advisors, creates a single proxy per bean, and composes an ordered interceptor chain based on matching Pointcuts. This separation of concerns keeps the framework performant, extensible, and maintainable.
