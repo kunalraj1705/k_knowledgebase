@@ -61,7 +61,7 @@ Infrastructure executes transparently.
   @Aspect
   class LoggingAspect {
   }
-
+  ```text
   * An Aspect is not executed directly.
 * Advice
   * Defines what should execute.
@@ -100,7 +100,7 @@ Developer writes
 class LoggingAspect {
 
 }
-
+```text
 @Transactional
 Step 2
 Spring parses annotations.
@@ -193,7 +193,7 @@ public Object log(ProceedingJoinPoint pjp){
     after();
     return result;
 }
-
+```text
 Important: pjp.proceed() ≠ Invoke Business Method
 
 Instead:
@@ -245,7 +245,7 @@ public void transfer(){
 public void debit(){
 
 }
-
+```text
 java converts debit(); to this.debit();
 
 ```text
