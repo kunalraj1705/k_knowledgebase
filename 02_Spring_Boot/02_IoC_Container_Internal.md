@@ -6,15 +6,15 @@ Spring application can contain hundred or even thousands of objects. Instead of 
 
 The IoC container also ensures that bean lifecycle. scope and dependency resolution are handled consistently throughout application .
 
-## Key concepts
+## Key Concepts
 
-* ApplicationContext
-* BeanFactory
-* BeanDefinition
-* Singleton Bean Registry
-* Bean Scope
-* Dependency Resolution
-* Dependency Injection
+- `ApplicationContext`
+- `BeanFactory`
+- `BeanDefinition`
+- `Singleton Bean Registry`
+- `Bean Scope`
+- `Dependency Resolution`
+- `Dependency Injection`
 
 ## Bean Management Flow
 
@@ -30,21 +30,21 @@ The IoC container also ensures that bean lifecycle. scope and dependency resolut
 
 ## Bean Definition
 
-A bean definition is the meta data about a bean.
+A bean definition is the metadata about a bean.
 
-It is **not** the actual object
+It is **not** the actual object.
 
-A Bean Definition contains information such as:
+A bean definition contains information such as:
 
-* Bean Class
-* Scope (Singleton/ Prototype)
-* Constructor Information
-* Dependencies
-* Lazy initialization
-* Primary Bean
-* Qualifier
+- Bean Class
+- Scope (Singleton / Prototype)
+- Constructor Information
+- Dependencies
+- Lazy initialization
+- Primary Bean
+- Qualifier
 
-Bean Definition act as a blueprint that spring uses whenever a bean needs to be created.
+A bean definition acts as a blueprint that Spring uses whenever a bean needs to be created.
 
 ---
 
@@ -77,61 +77,51 @@ Once the Spring returns the object. It no longer manages the lifecycle. When obj
 
 ## Dependency Resolution
 
-Before creating a bean, spring examines its constructor dependencies.
+Before creating a bean, Spring examines its constructor dependencies.
 
 Example:
 
-    UserController
-
-     ⬇️
-
-    Depends on
-
-     ⬇️
-
-    UserService
-
-     ⬇️
-
-    Depends on
-
-     ⬇️
-
-    UserRepository
+```text
+UserController
+  ↓
+Depends on
+  ↓
+UserService
+  ↓
+Depends on
+  ↓
+UserRepository
+```
 
 Spring creates the bean in dependency order:
 
-1: UserRepository
+1. `UserRepository`
+2. `UserService`
+3. `UserController`
 
-2: UserService
-
-3: UserController
-
-This insures every dependency is available before injection.
+This ensures every dependency is available before injection.
 
 ---
 
-## Multiple Implementation
+## Multiple Implementations
 
-If multiple bean implement the same Interface:
+If multiple beans implement the same interface:
 
+```text
 NotificationService
+  │
+  ├── EmailService
+  ├── SMSService
+  └── PushNotificationService
+```
 
-    |
-
-EmailService
-
-SMSService
-
-PushNotificationService
-
-Spring follows this Process:
+Spring follows this process:
 
 1. Find all matching beans.
-2. If Only one exist, inject it
-3. If Multiple exist, look for @Primary
-4. If @Qualifier is specified use the matching bean
-5. If ambiguity still exist, throw NoUniqueBeanDefinitionException
+2. If only one exists, inject it.
+3. If multiple exist, look for `@Primary`.
+4. If `@Qualifier` is specified, use the matching bean.
+5. If ambiguity still exists, throw `NoUniqueBeanDefinitionException`.
 
 ---
 

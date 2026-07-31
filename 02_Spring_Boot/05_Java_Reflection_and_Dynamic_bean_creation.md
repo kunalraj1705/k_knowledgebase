@@ -1,8 +1,8 @@
-# The Complete getBean() Lifecycle
+# Java Reflection and Dynamic Bean Creation
 
 ## Learning Objective
 
-Understand how Spring dynamically creates bean instances using Java Reflection, distinguish the responsibilities of the JVM, ClassLoader, Reflection, and BeanFactory, and learn how Reflection and Dependency Resolution work together during bean creation.
+Understand how Spring dynamically creates bean instances using Java Reflection, distinguish the responsibilities of the JVM, `ClassLoader`, `Reflection`, and `BeanFactory`, and learn how Reflection and dependency resolution work together during bean creation.
 
 ---
 
@@ -20,79 +20,35 @@ Java Reflection solves this problem.
 
 ---
 
-## Architecture Components?
+## Architecture Components
 
+```text
 Java Compilation & Runtime Flow
 
 UserService.java
-
-        │
-
-        ▼
-
+  ↓
 javac Compiler
-
-        │
-
-        ▼
-
+  ↓
 UserService.class
-
-(Java Bytecode)
-
-        │
-
-        ▼
-
+  ↓
 ClassLoader
-
-        │
-
-        ▼
-
+  ↓
 JVM creates Class<UserService>
-
-        │
-
-        ▼
-
+  ↓
 Spring Component Scan
-
-        │
-
-        ▼
-
+  ↓
 BeanDefinition
-
-        │
-
-        ▼
-
+  ↓
 BeanFactory
-
-        │
-
-        ▼
-
+  ↓
 Reflection
-
-        │
-
-        ▼
-
+  ↓
 Bean Instance
-
-        │
-
-        ▼
-
+  ↓
 Initialization
-
-        │
-
-        ▼
-
+  ↓
 Singleton Cache
+```
 
 ---
 
@@ -174,8 +130,8 @@ Spring scans application classes.
 
 It reads annotations like:
 
-* omponent
-* ervice
+* Component
+* Service
 * @Repository
 
 Using the loaded Class<?> object, Spring creates a BeanDefinition containing all metadata required for bean creation.

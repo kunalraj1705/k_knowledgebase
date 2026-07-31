@@ -1,88 +1,65 @@
+# Bean Lifecycle and Proxy Creation
+
 ## Learning Objective
 
-# By the end of this module, you should understand:
+By the end of this module, you should understand:
 
-* How a Java object becomes a fully initialized Spring Bean.
-* Why Spring introduced BeanPostProcessor.
-* How Spring creates proxies.
-* Difference between JDK Dynamic Proxy and CGLIB.
-* Why @Transactional, @Cacheable, @Async, etc. work.
-* Why self-invocation bypasses Spring AOP.
-* Why component boundaries are important in Spring architecture
+- How a Java object becomes a fully initialized Spring Bean.
+- Why Spring introduced `BeanPostProcessor`.
+- How Spring creates proxies.
+- The difference between JDK Dynamic Proxy and CGLIB.
+- Why `@Transactional`, `@Cacheable`, `@Async`, and similar annotations work.
+- Why self-invocation bypasses Spring AOP.
+- Why component boundaries are important in Spring architecture.
 
 ---
 
-# Problem Statement
+## Problem Statement
 
 Reflection has created the object.
 
 ```java
 UserService service = new UserService(repository);
+```
 
 Question: Is this immediately a Spring Bean?
 
-Ans: No.
+Answer: No.
 
 It is only a plain Java object.
 
 Spring still needs to:
 
-* initialize it
-* allow extensions
-* create proxies (if necessary)
-* return the final object to the application
+- initialize it
+- allow extensions
+- create proxies (if necessary)
+- return the final object to the application
 
 ---
 
-# Architecture
+## Architecture
 
+```text
 Bean Request
-
-      │
-
-      ▼
-
+  ↓
 Dependency Resolution
-
-      │
-
-      ▼
-
+  ↓
 Reflection
-
-      │
-
-      ▼
-
+  ↓
 Java Object Created
-
-      │
-
-      ▼
-
+  ↓
 @PostConstruct
-
-      │
-
-      ▼
-
+  ↓
 BeanPostProcessor
-
-      │
-
-      ▼
-
+  ↓
 Proxy Created (if required)
-
-      │
-
-      ▼
-
+  ↓
 Bean Returned
+```
 
 ---
 
-# Stage 1 — Reflection Creates a Java Object
+## Stage 1 — Reflection Creates a Java Object
 
 Reflection simply invokes the constructor.
 

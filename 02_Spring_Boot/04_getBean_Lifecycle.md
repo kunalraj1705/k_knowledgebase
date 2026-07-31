@@ -20,19 +20,15 @@ Understanding this flow is the foundation for understanding:
 
 ## High-Level Architecture
 
+```text
 Developer
-
-↓
-
+  ↓
 ApplicationContext
-
-↓
-
+  ↓
 BeanFactory
-
-↓
-
+  ↓
 Bean Instance
+```
 
 The developer interacts only with the ApplicationContext.
 
@@ -42,27 +38,20 @@ The ApplicationContext delegates all bean management responsibilities to the Bea
 
 ## BeanFactory Architecture
 
-Spring builds its BeanFactory using layered abstractions.
+Spring builds its `BeanFactory` using layered abstractions.
 
+```text
 BeanFactory (Interface)
-
-        │
-
-        ▼
-
+  │
+  ▼
 AbstractBeanFactory
-
-        │
-
-        ▼
-
+  │
+  ▼
 AbstractAutowireCapableBeanFactory
-
-        │
-
-        ▼
-
+  │
+  ▼
 DefaultListableBeanFactory
+```
 
 Each layer adds one responsibility while reusing the previous implementation.
 
@@ -122,17 +111,13 @@ BeanFactory (Interface)
 
 ## Internal Components of BeanFactory
 
-                BeanFactory
-
-                     │
-
-      ┌──────────────┼───────────────┐
-
-      ▼                     ▼                    ▼
-
-BeanDefinition   Singleton Cache   Dependency Resolver
-
-   Registry
+```text
+BeanFactory
+  │
+  ├── BeanDefinition Registry
+  ├── Singleton Cache
+  └── Dependency Resolver
+```
 
 ---
 

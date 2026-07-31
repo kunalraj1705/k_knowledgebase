@@ -1,30 +1,32 @@
 # BeanFactory vs ApplicationContext
 
-##Learning Objective
+## Learning Objective
 
-* Understand the responsibilities of ApplicationContext and BeanFactory, how Spring locates and creates beans, and how recursive dependency resolution works.
+- Understand the responsibilities of `ApplicationContext` and `BeanFactory`, how Spring locates and creates beans, and how recursive dependency resolution works.
 
 ## Why does Spring have both BeanFactory and ApplicationContext?
 
-* A factory should focus on creating and managing beans.
-* A client should not directly interact with the factory.
-* Spring introduces ApplicationContext as a higher-level abstraction that hides the internal complexity of the BeanFactory.
-* Mental Model
+- A factory should focus on creating and managing beans.
+- A client should not directly interact with the factory.
+- Spring introduces `ApplicationContext` as a higher-level abstraction that hides the internal complexity of the `BeanFactory`.
 
-  *                  Developer
-  *                      │
-  *                      ▼
-  *           ApplicationContext
-  *         (Public API / Showroom)
-  *                      │
-  *                      ▼
-  *                BeanFactory
-  *           (Bean Management Unit)
-  *                      │
-  *      ┌───────────────┼────────────────┐
-  *      ▼                     ▼                    ▼
-  * BeanDefinition   Singleton Cache   Dependency Resolver
-  *    Registry
+### Mental Model
+
+```text
+Developer
+  │
+  ▼
+ApplicationContext
+(Public API / Showroom)
+  │
+  ▼
+BeanFactory
+(Bean Management Unit)
+  │
+  ├── BeanDefinition Registry
+  ├── Singleton Cache
+  └── Dependency Resolver
+```
 
 Eg:
 

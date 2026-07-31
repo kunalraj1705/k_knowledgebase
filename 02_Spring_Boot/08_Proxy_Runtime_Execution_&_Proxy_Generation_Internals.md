@@ -1,28 +1,22 @@
+# Proxy Runtime Execution and Proxy Generation Internals
+
 ## Learning Objective
 
 Understand how Spring creates proxies, executes interceptor chains, chooses between JDK Dynamic Proxy and CGLIB, and why self-invocation bypasses Spring AOP.
 
-# Module Overview
+---
 
+### Module Overview
+
+```text
 Client
-
-   │
-
-   ▼
-
+  ↓
 Proxy
-
-   │
-
-   ▼
-
+  ↓
 Interceptor Chain
-
-   │
-
-   ▼
-
+  ↓
 Target Method
+```
 
 This module answers four important questions:
 
@@ -33,189 +27,145 @@ This module answers four important questions:
 
 Note:
 
-CGLIB - Code Generation Library
-
-AOP - Aspect-Oriented Programming
+- `CGLIB` = Code Generation Library
+- `AOP` = Aspect-Oriented Programming
 
 ---
 
-# 1. Calling a Spring Bean
+## 1. Calling a Spring Bean
 
-Suppose we have
+Suppose we have:
 
 ```java
 @Service
-
 public class PaymentService {
-
     @Transactional
-
     @Cacheable
-
     public void transfer() {
-
         System.out.println("Business Logic");
-
     }
-
 }
+```
 
-Spring injects
+Spring injects:
 
+```java
 @Autowired
-
 private PaymentService paymentService;
+```
 
-Although it appears to be a normal object...
+Although it appears to be a normal object, it is actually a proxy.
 
-It is actually Proxy
+So `paymentService.transfer();` does not call `PaymentService.transfer()` directly.
 
-so paymentService.transfer(); does not call PaymentService.transfer()
+Instead:
 
-instead
-
+```text
 Client
-
-   │
-
-   ▼
-
+  ↓
 Proxy.transfer()
+```
 
 ---
 
-# 2. Why a Proxy?
+## 2. Why a Proxy?
 
-Without Proxy
+Without a proxy:
 
+```text
 Client
-
-   │
-
-   ▼
-
+  ↓
 Business Method
+```
 
-Spring cannot execute
+Spring cannot execute:
 
-* Transaction
-* Cache
-* Security
-* Retry
-* Async
-* Metrics
+- Transaction
+- Cache
+- Security
+- Retry
+- Async
+- Metrics
 
-With a proxy
+With a proxy:
 
+```text
 Client
-
-   │
-
-   ▼
-
+  ↓
 Proxy
-
-   │
-
-   ▼
-
+  ↓
 Interceptors
-
-   │
-
-   ▼
-
+  ↓
 Business Method
+```
 
 The proxy becomes the execution gateway.
 
 ---
 
-# 3. Interceptor Chain
+## 3. Interceptor Chain
 
-Suppose
+Suppose:
 
+```java
 @Transactional
-
 @Cacheable
+```
 
-Spring creates
+Spring creates:
 
+```text
 Proxy
-
-   │
-
-   ▼
-
+  ↓
 CacheInterceptor
-
-   │
-
-   ▼
-
+  ↓
 TransactionInterceptor
-
-   │
-
-   ▼
-
+  ↓
 PaymentService
+```
 
-Each interceptor performs
+Each interceptor performs:
 
+```text
 Before Logic
-
-↓
-
+  ↓
 Next
-
-↓
-
+  ↓
 After Logic
+```
 
 Conceptually:
 
+```java
 before();
-
 Object result = invocation.proceed();
-
 after();
-
 return result;
+```
 
 Every interceptor follows exactly the same algorithm.
 
 ---
 
-# 4. Chain of Responsibility Pattern
+## 4. Chain of Responsibility Pattern
 
 Each interceptor never knows the complete chain.
 
-it only knows invocation.proceed();
+It only knows `invocation.proceed()`.
 
 Execution:
 
+```text
 Security
-
-    │
-
-    ▼
-
+  ↓
 Cache
-
-    │
-
-    ▼
-
+  ↓
 Transaction
-
-    │
-
-    ▼
-
+  ↓
 Target
+```
 
-If an interceptor decides Stop then the chain terminates
+If an interceptor decides to stop, the chain terminates.
 
 Examples:
 
@@ -226,195 +176,157 @@ Examples:
 
 ---
 
-# 5. ReflectiveMethodInvocation
+## 5. `ReflectiveMethodInvocation`
 
-Spring stores invocation state inside ReflectiveMethodInvocation
+Spring stores invocation state inside `ReflectiveMethodInvocation`.
 
 Conceptually:
 
+```java
 class ReflectiveMethodInvocation {
-
     Object target;
-
     Method method;
-
     Object[] arguments;
-
     List<MethodInterceptor> interceptors;
-
     int currentInterceptorIndex;
-
 }
+```
 
-This object represents One method invocation Not One bean
+This object represents one method invocation, not one bean.
 
 ---
 
-# 6. Why currentInterceptorIndex Starts at -1
+## 6. Why `currentInterceptorIndex` Starts at `-1`
 
-Spring initializes currentInterceptorIndex = -1; instead of 0
+Spring initializes `currentInterceptorIndex = -1` instead of `0`.
 
 Reason:
 
-Every invocation follows exactly the same algorithm
+Every invocation follows exactly the same algorithm:
 
-{
-
-  index++;
-
-  invoke(interceptor[index]);
-
-}
+```java
+index++;
+invoke(interceptor[index]);
+```
 
 Execution:
 
+```text
 -1
-
- │
-
- ▼
-
+  ↓
 0 → Security
-
 1 → Cache
-
 2 → Transaction
-
 3 → Target
+```
 
 ---
 
-# 7. proceed()
+## 7. `proceed()`
 
 Conceptually:
 
+```java
 Object proceed() {
-
     currentInterceptorIndex++;
-
-    if(moreInterceptors){
-
+    if (moreInterceptors) {
         invoke(nextInterceptor);
-
-    }else{
-
+    } else {
         invokeTargetMethod();
-
     }
-
 }
+```
 
-Every interceptor simply executes
+Every interceptor simply executes `invocation.proceed()`.
 
-invocation.proceed();
+It never knows:
 
-It never knows
-
-* previous interceptor
-* next interceptor
-* total interceptor count
+- previous interceptor
+- next interceptor
+- total interceptor count
 
 Traversal is centralized.
 
 ---
 
-# 8. Exception Propagation
+## 8. Exception Propagation
 
-Transaction interceptor
+Transaction interceptor:
 
+```java
 beginTransaction();
-
-try{
-
+try {
     Object result = invocation.proceed();
-
     commit();
-
-}
-
-catch(Exception e){
-
+} catch (Exception e) {
     rollback();
-
     throw e;
-
 }
+```
 
 Why rethrow?
 
-Because the caller must know The operation failed.
+Because the caller must know the operation failed.
 
-Otherwise
+Otherwise:
 
+```java
 paymentService.transfer();
-
 System.out.println("Success");
+```
 
 ---
 
-# 9. Runtime Execution
+## 9. Runtime Execution
 
+```text
 Client
-
-↓
-
+  ↓
 Proxy
-
-↓
-
+  ↓
 Security
-
-↓
-
+  ↓
 Cache
-
-↓
-
+  ↓
 Transaction
-
-↓
-
+  ↓
 Business Method
-
-↓
-
+  ↓
 Transaction Commit
-
-↓
-
+  ↓
 Return
-
-↓
-
+  ↓
 Client
+```
 
 ---
 
-# 10. JDK Dynamic Proxy
+## 10. JDK Dynamic Proxy
 
-Suppose
+Suppose:
 
+```java
 public interface PaymentService {
-
     void transfer();
-
 }
+```
 
 Implementation:
 
+```java
 public class PaymentServiceImpl implements PaymentService {
-
 }
+```
 
-JDK creates
+JDK creates:
 
+```java
 class $Proxy0 implements PaymentService {
-
     InvocationHandler handler;
-
 }
+```
 
-It implements the interface
+It implements the interface.
 
 ---
 

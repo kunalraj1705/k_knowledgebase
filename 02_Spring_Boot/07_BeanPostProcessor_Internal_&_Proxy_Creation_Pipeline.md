@@ -1,322 +1,267 @@
+# BeanPostProcessor Internal and Proxy Creation Pipeline
+
 ## Learning Objective
 
 By the end of this module, you should understand:
 
-* Why Spring caches metadata instead of repeatedly scanning annotations.
-* The purpose of BeanPostProcessor.
-* Why Spring creates one proxy instead of multiple nested proxies.
-* The difference between Advice, Pointcut, and Advisor.
-* How AnnotationAwareAspectJAutoProxyCreator works.
-* The complete proxy creation pipeline.
+- Why Spring caches metadata instead of repeatedly scanning annotations.
+- The purpose of `BeanPostProcessor`.
+- Why Spring creates one proxy instead of multiple nested proxies.
+- The difference between `Advice`, `Pointcut`, and `Advisor`.
+- How `AnnotationAwareAspectJAutoProxyCreator` works.
+- The complete proxy creation pipeline.
 
 ---
 
-# Problem Statement
+## Problem Statement
 
 Consider the following bean:
 
 ```java
 @Service
-
 public class PaymentService {
-
     @Transactional
-
     @Cacheable
-
     public void transfer() {
-
     }
-
 }
+```
 
 Questions:
 
-* Who discovers @Transactional?
-* Who decides a proxy is required?
-* How does Spring know which interceptor to execute?
-* Why doesn't Spring create one proxy per annotation?
+- Who discovers `@Transactional`?
+- Who decides a proxy is required?
+- How does Spring know which interceptor to execute?
+- Why doesn't Spring create one proxy per annotation?
 
 This module answers these questions.
 
 ---
 
-1. Metadata is Parsed Once
+## 1. Metadata is Parsed Once
 
 Spring separates startup into two phases.
 
-Phase 1 — Metadata Discovery
+### Phase 1 — Metadata Discovery
 
+```text
 .class
-
-↓
-
+  ↓
 ClassLoader
-
-↓
-
+  ↓
 Component Scan
-
-↓
-
+  ↓
 Read Annotations
-
-↓
-
+  ↓
 BeanDefinition (Metadata)
+```
 
-During component scanning Spring discovers:
+During component scanning, Spring discovers:
 
-* @Service
-* @Repository
-* @Controller
-* @Transactional
-* @Cacheable
-* @Async
-* etc.
+- `@Service`
+- `@Repository`
+- `@Controller`
+- `@Transactional`
+- `@Cacheable`
+- `@Async`
+- etc.
 
 No Java object exists yet.
 
 Only metadata is collected.
 
-Phase 2 — Bean Creation
+### Phase 2 — Bean Creation
 
+```text
 Reflection
-
-↓
-
+  ↓
 Java Object
-
-↓
-
+  ↓
 Dependency Injection
-
-↓
-
+  ↓
 @PostConstruct
-
-↓
-
+  ↓
 BeanPostProcessor
-
-↓
-
+  ↓
 Proxy (if required)
-
-↓
-
+  ↓
 Return Bean
+```
 
 Instead of scanning annotations again, Spring reuses the metadata collected earlier.
 
 ---
 
-2. BeanPostProcessor
+## 2. `BeanPostProcessor`
 
-A BeanPostProcessor is a Spring extension point.
+A `BeanPostProcessor` is a Spring extension point.
 
 It receives every fully initialized bean before the bean is exposed from the container.
 
 Conceptually:
 
+```text
 Bean
-
-↓
-
+  ↓
 BeanPostProcessor
-
-↓
-
+  ↓
 Inspect
-
-↓
-
+  ↓
 Modify / Enhance / Replace
-
-↓
-
+  ↓
 Return Bean
+```
 
-Not every BeanPostProcessor creates proxies.
+Not every `BeanPostProcessor` creates proxies.
 
 Examples:
 
-* Validation
-* Dependency enhancement
-* Metadata registration
-* Proxy creation
+- Validation
+- Dependency enhancement
+- Metadata registration
+- Proxy creation
 
 ---
 
-3. @PostConstruct vs BeanPostProcessor
+## 3. `@PostConstruct` vs `BeanPostProcessor`
 
-@PostConstruct
+`@PostConstruct`
 
 Purpose: Initialize the bean after dependency injection.
 
+```text
 Reflection
-
-↓
-
+  ↓
 Object Created
-
-↓
-
+  ↓
 Dependencies Injected
-
-↓
-
+  ↓
 @PostConstruct
+```
 
 Runs inside the bean.
 
 Example:
 
+```java
 @PostConstruct
-
 public void init() {
-
 }
+```
 
-BeanPostProcessor
+`BeanPostProcessor`
 
 Purpose: Allow Spring to enhance or replace the bean.
 
+```text
 @PostConstruct
-
-↓
-
+  ↓
 BeanPostProcessor
-
-↓
-
+  ↓
 Proxy Created (if required)
+```
 
 Runs outside the bean.
 
-Comparison:
+### Comparison
 
-| @PostConstruct             | BeanPostProcessor           |
-
-| -------------------------- | --------------------------- |
-
-| Bean initializes itself    | Framework enhances bean     |
-
-| Runs inside bean           | Runs outside bean           |
-
-| After dependency injection | After initialization        |
-
-| Cannot replace bean        | Can replace bean with proxy |
+| `@PostConstruct` | `BeanPostProcessor` |
+| --- | --- |
+| Bean initializes itself | Framework enhances bean |
+| Runs inside bean | Runs outside bean |
+| After dependency injection | After initialization |
+| Cannot replace bean | Can replace bean with proxy |
 
 ---
 
-4. Why Proxies are Created
+## 4. Why Proxies Are Created
 
-Suppose a bean contains:@Transactional
+Suppose a bean contains `@Transactional`.
 
-Should Spring create: Transaction Proxy for every annotation?
+Should Spring create a transaction proxy for every annotation?
 
-Ans: NO
+Answer: No.
 
 Imagine:
 
+```java
 @Transactional
-
 @Cacheable
-
 @Async
-
 @Retryable
+```
 
 Multiple nested proxies would produce:
 
+```text
 Async Proxy
-
-↓
-
+  ↓
 Retry Proxy
-
-↓
-
+  ↓
 Cache Proxy
-
-↓
-
+  ↓
 Transaction Proxy
-
-↓
-
+  ↓
 Target Object
+```
 
 This creates unnecessary complexity.
 
 ---
 
-5. One Proxy with Multiple Interceptors
+## 5. One Proxy with Multiple Interceptors
 
 Spring creates one proxy.
 
 Inside that proxy lives an interceptor chain.
 
+```text
 Proxy
-
-↓
-
+  ↓
 SecurityInterceptor
-
-↓
-
+  ↓
 CacheInterceptor
-
-↓
-
+  ↓
 TransactionInterceptor
-
-↓
-
+  ↓
 Target Method
+```
 
 Each interceptor performs one responsibility.
 
 Typical interceptor structure:
 
+```text
 Before
-
-↓
-
+  ↓
 Proceed
-
-↓
-
+  ↓
 After
+```
 
 ---
 
-6. Execution Order Matters
+## 6. Execution Order Matters
 
 Example:
 
+```java
 @Transactional
-
 @Cacheable
-
 @PreAuthorize
+```
 
 A sensible execution order is:
 
+```text
 Security
-
-↓
-
+  ↓
 Cache
-
-↓
-
+  ↓
 Transaction
-
-↓
-
+  ↓
 Business Logic
+```
 
 Reason:
 
