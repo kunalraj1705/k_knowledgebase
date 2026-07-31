@@ -134,7 +134,9 @@ BeanPostProcessor Chain
       ├── Async Processor
       └── Custom Processors
 ```
+
 This keeps the framework open for extension while keeping the core simple.
+
 ---
 ## Proxy Creation
 * Suppose:
@@ -186,7 +188,7 @@ Your business class remains focused on business logic.
  ┌──────┴────────┐
  │               │
 Impl         TransactionProxy
-
+```
 2. CGLIB Proxy
 
 Used when no interface exists.
