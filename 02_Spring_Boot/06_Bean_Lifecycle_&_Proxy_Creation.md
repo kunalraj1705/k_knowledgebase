@@ -380,22 +380,24 @@ Enhancement
 Ready Bean
 ```
 2. Proxy Pattern
-
+```text
 Developer
 ↓
 Proxy
 ↓
 Original Object
+```
 
 Developer never interacts with the original object directly.
 
 3. Self Invocation
-
+```text
 Proxy
 ↓
 Original Object
 ↓
 this.method()
+```
 
 The proxy has already delegated execution.
 
