@@ -148,3 +148,29 @@
 
 ##EP-075: Core framework components should remain unaware of extension-specific behavior.
 
+##EP-076: Frameworks centralize infrastructure concerns such as thread management so developers can focus on business logic.
+
+##EP-077: Frameworks maximize consistency by reusing existing lifecycle extension points instead of inventing new processing pipelines.
+
+##EP-078: Interceptors coordinate execution while delegating resource management to specialized infrastructure components.
+
+##EP-079: Proxy-based features apply only to calls entering through the proxy.
+
+##EP-080: The IoC container manages proxy objects as the public representation of beans.
+
+##EP-081: Asynchronous execution separates caller and worker thread control flow.
+
+##EP-082: A Future represents a promise for a result that is not yet available.
+
+##EP-083: Thread-bound infrastructure must be initialized in the thread that performs the work.
+
+##EP-084: Execution frameworks absorb short bursts through bounded queues and reject excess work to preserve stability.
+
+##EP-085: Bounded systems fail gracefully by applying backpressure.
+
+##EP-086: System throughput is constrained by the slowest downstream dependency.
+
+##EP-087: Framework features should be opt-in.
+
+##EP-088: Framework annotations declare intent while imported configuration builds infrastructure.
+

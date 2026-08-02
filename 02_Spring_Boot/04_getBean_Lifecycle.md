@@ -303,9 +303,9 @@ public UserService(
         NotificationService notificationService
 
 )
-
+```
 Spring Performs:
-
+```
 getBean(UserService)
 
 ↓
@@ -351,6 +351,7 @@ Create UserService
 ↓
 
 Return
+```
 
 Spring recursively calls getBean() until every dependency is satisfied.
 

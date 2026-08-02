@@ -107,7 +107,7 @@ Singleton Cache
 ## Internal Working
 
 Step 1 — Class Loading
-
+```
 UserService.class
 
 ↓
@@ -119,6 +119,7 @@ ClassLoader
 JVM creates
 
 Class<UserService>
+```
 
 At this stage, only the class metadata exists.
 
@@ -168,6 +169,7 @@ public UserService(
     EmailService emailService
 
 )
+```
 
 BeanFactory recursively resolves dependencies.
 
