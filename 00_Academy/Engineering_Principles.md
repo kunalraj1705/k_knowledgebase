@@ -174,3 +174,17 @@
 
 ##EP-088: Framework annotations declare intent while imported configuration builds infrastructure.
 
+##EP-089: Frameworks should separate business logic from infrastructure.
+
+##EP-090: Heavy computation belongs during startup.
+
+##EP-091: Runtime should operate using precomputed metadata.
+
+##EP-092: Shared infrastructure should manage execution resources.
+
+##EP-093: Scheduling strategy should match business requirements.
+
+##EP-094: Infrastructure failures should remain isolated from business failures.
+
+##EP-095: Application-level scheduling works only within a single JVM. Distributed coordination requires external mechanisms.
+
