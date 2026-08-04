@@ -188,3 +188,31 @@
 
 ##EP-095: Application-level scheduling works only within a single JVM. Distributed coordination requires external mechanisms.
 
+##EP-096: Frameworks should separate business logic from infrastructure.
+
+##EP-097: Heavy computation belongs during startup.
+
+##EP-098: Runtime should operate using precomputed metadata.
+
+##EP-099: Shared infrastructure should manage execution resources.
+
+##EP-100: Scheduling strategy should match business requirements.
+
+##EP-101: Infrastructure failures should remain isolated from business failures.
+
+##EP-102: Application-level scheduling works only within a single JVM. Distributed coordination requires external mechanisms.
+
+##EP-103: Caching is a trade-off between memory and computation.
+
+##EP-104: Database remains the source of truth.
+
+##EP-105: Frameworks should move expensive work to startup.
+
+##EP-106: Runtime should operate using precomputed infrastructure.
+
+##EP-107: Cache keys must uniquely identify cached results.
+
+##EP-108: Cache consistency should be designed based on business requirements.
+
+##EP-109: Shared infrastructure should manage cross-cutting concerns instead of business code.
+
