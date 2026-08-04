@@ -216,3 +216,19 @@
 
 ##EP-109: Shared infrastructure should manage cross-cutting concerns instead of business code.
 
+##EP-110: Separate HTTP infrastructure from business logic.
+
+##EP-111: Infrastructure should exist before metadata registration.
+
+##EP-112: Perform expensive discovery during startup.
+
+##EP-113: Runtime should rely on precomputed metadata.
+
+##EP-114: Delegate specialized responsibilities to dedicated components.
+
+##EP-115: Controllers should operate on domain objects, not HTTP details.
+
+##EP-116: Cross-cutting concerns belong to the appropriate layer: Filter → Servlet Layer, Interceptor → MVC Layer, AOP → Business Layer.
+
+##EP-117: Frameworks should prepare execution context before invoking business code.
+
