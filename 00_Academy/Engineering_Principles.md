@@ -232,3 +232,21 @@
 
 ##EP-117: Frameworks should prepare execution context before invoking business code.
 
+##EP-118: Reject invalid requests as early as possible.
+
+##EP-119: Separate security from business logic.
+
+##EP-120: Authentication and authorization are different responsibilities.
+
+##EP-121: One component should own one responsibility.
+
+##EP-122: Use delegation instead of monolithic implementations.
+
+##EP-123: Perform expensive work once and reuse the result.
+
+##EP-124: Store request-scoped security information using ThreadLocal.
+
+##EP-125: Infrastructure first. Metadata later. Runtime lookup finally.
+
+##EP-126: Protect HTTP requests using Filters. Protect business methods using AOP.
+
