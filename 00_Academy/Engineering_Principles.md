@@ -250,3 +250,21 @@
 
 ##EP-126: Protect HTTP requests using Filters. Protect business methods using AOP.
 
+##EP-127: Prefer declarative persistence over manual JDBC boilerplate when the framework can manage it.
+
+##EP-128: Keep persistence architecture layered so each component owns a single responsibility.
+
+##EP-129: Treat the EntityManager as the central coordinator for persistence operations.
+
+##EP-130: Treat the Persistence Context as a transaction-scoped unit of work for entity lifecycle and identity.
+
+##EP-131: Preserve entity identity within the same Persistence Context so repeated lookups return the same managed object.
+
+##EP-132: Use the first-level cache to avoid redundant database lookups during a transaction.
+
+##EP-133: Use dirty checking to detect in-memory changes and synchronize them to the database at flush or commit time.
+
+##EP-134: Make flush the explicit boundary where the persistence context and database are synchronized.
+
+##EP-135: Let Hibernate translate object changes into SQL instead of requiring developers to write update statements manually.
+
