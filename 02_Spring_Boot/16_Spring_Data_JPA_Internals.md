@@ -911,3 +911,341 @@ Spring Data JPA follows the same architectural principles seen throughout Spring
 - Separation of Responsibilities
 
 The Persistence Context is the heart of JPA. It manages entity identity, lifecycle, dirty checking, caching, and synchronization with the database, allowing developers to work with Java objects while Hibernate transparently generates the minimum SQL required.
+
+---
+
+# Interview Questions
+
+## Q1. What is JPA?
+
+JPA (Java Persistence API) is a specification that defines the standard APIs and contracts for object-relational mapping (ORM) in Java applications. It defines interfaces such as EntityManager, entity lifecycle, annotations, and persistence behavior, but it does not provide an implementation.
+
+---
+
+## Q2. What is Hibernate?
+
+Hibernate is a JPA provider (implementation) that implements the JPA specification. It provides features such as SQL generation, Dirty Checking, Lazy Loading, Caching, Proxy creation, and JDBC interaction.
+
+---
+
+## Q3. Difference between JPA and Hibernate?
+
+| JPA | Hibernate |
+|------|-----------|
+| Specification | Implementation |
+| Defines contracts | Implements contracts |
+| Vendor independent | Vendor specific |
+| Defines EntityManager | Implements EntityManager behavior |
+| Defines annotations | Processes annotations |
+| No SQL generation | Generates SQL |
+| No Dirty Checking | Implements Dirty Checking |
+| No Lazy Loading | Implements Lazy Loading |
+
+---
+
+## Q4. Why does Spring use JPA instead of Hibernate directly?
+
+Spring depends on the JPA specification rather than Hibernate directly. This follows the Dependency Inversion Principle and allows the JPA provider (Hibernate, EclipseLink, OpenJPA, etc.) to be replaced without changing business code.
+
+Architecture:
+
+Application
+
+↓
+
+Spring Data JPA
+
+↓
+
+JPA Specification
+
+↓
+
+Hibernate / EclipseLink
+
+↓
+
+JDBC
+
+↓
+
+Database
+
+---
+
+## Q5. What is EntityManager?
+
+EntityManager is the central JPA component responsible for managing the Persistence Context. It performs operations such as persist(), find(), merge(), remove(), flush(), and delegates persistence work to Hibernate.
+
+---
+
+## Q6. What is the Persistence Context?
+
+Persistence Context is a transaction-scoped unit of work managed by the EntityManager. It manages entity lifecycle, entity identity, first-level caching, dirty checking, snapshots, and synchronization with the database.
+
+---
+
+## Q7. What is the First-Level Cache?
+
+The First-Level Cache is the cache inside the Persistence Context. Repeated lookups of the same entity within the same Persistence Context return the same managed object without executing additional SQL.
+
+---
+
+## Q8. Why does entityManager.find() return the same object reference?
+
+Because the Persistence Context maintains exactly one managed instance for each database row. Multiple calls to find() return the same managed object to maintain consistency.
+
+---
+
+## Q9. What is Dirty Checking?
+
+Dirty Checking is Hibernate's mechanism for detecting changes made to managed entities. During Flush, Hibernate compares the current entity with its snapshot and automatically generates UPDATE SQL if changes are detected.
+
+---
+
+## Q10. Why don't we call save() after modifying a managed entity?
+
+Managed entities are tracked by the Persistence Context. Hibernate automatically detects changes through Dirty Checking and synchronizes them during Flush or Commit.
+
+---
+
+## Q11. Difference between Flush and Commit?
+
+### Flush
+
+- Synchronizes Persistence Context with Database
+- Executes SQL
+- Transaction remains active
+- Changes can still be rolled back
+
+### Commit
+
+- Flushes pending changes
+- Commits database transaction
+- Makes changes permanent
+- Ends transaction
+
+---
+
+## Q12. Explain the Entity Lifecycle.
+
+Transient
+
+↓
+
+Managed
+
+↓
+
+Detached
+
+↓
+
+Removed
+
+---
+
+## Q13. Difference between persist() and merge()?
+
+persist()
+
+- Used for new entities
+- Makes Transient entity Managed
+- Generates INSERT
+
+merge()
+
+- Used for Detached entities
+- Copies state into a Managed entity
+- Generates INSERT or UPDATE depending on existence
+
+---
+
+## Q14. Difference between Managed and Detached Entity?
+
+Managed
+
+- Inside Persistence Context
+- Dirty Checking enabled
+- Automatically synchronized
+
+Detached
+
+- Outside Persistence Context
+- Dirty Checking disabled
+- Changes are not tracked
+
+---
+
+## Q15. What is Lazy Loading?
+
+Lazy Loading delays loading of related entities until they are actually accessed. Hibernate initially returns a proxy and executes SQL only when the relationship is used.
+
+---
+
+## Q16. What is the N+1 Query Problem?
+
+One query loads parent entities and then N additional queries are executed to load child entities lazily, resulting in excessive database calls and degraded performance.
+
+---
+
+## Q17. What is LazyInitializationException?
+
+LazyInitializationException occurs when a lazy proxy attempts to load data after the Persistence Context has already been closed.
+
+---
+
+## Q18. How does JpaRepository work internally?
+
+```
+Repository Interface
+
+↓
+
+Repository Proxy
+
+↓
+
+SimpleJpaRepository
+
+↓
+
+EntityManager
+
+↓
+
+Hibernate
+
+↓
+
+JDBC
+
+↓
+
+Database
+```
+
+---
+
+## Q19. What is SimpleJpaRepository?
+
+SimpleJpaRepository is Spring Data JPA's default implementation of JpaRepository. It implements standard CRUD operations by delegating persistence work to the EntityManager.
+
+---
+
+## Q20. Is EntityManager a Singleton?
+
+No.
+
+EntityManager is not thread-safe.
+
+A new EntityManager (and Persistence Context) is associated with each transaction.
+
+---
+
+## Q21. Explain the complete JPA request lifecycle.
+
+```
+Controller
+
+↓
+
+@Transactional Proxy
+
+↓
+
+TransactionInterceptor
+
+↓
+
+EntityManager Created
+
+↓
+
+Persistence Context Created
+
+↓
+
+Repository Proxy
+
+↓
+
+SimpleJpaRepository
+
+↓
+
+EntityManager
+
+↓
+
+Hibernate
+
+↓
+
+JDBC
+
+↓
+
+Database
+
+↓
+
+Managed Entity Returned
+
+↓
+
+Business Logic
+
+↓
+
+Dirty Checking
+
+↓
+
+Flush
+
+↓
+
+Generate SQL
+
+↓
+
+Commit
+
+↓
+
+Close EntityManager
+```
+
+---
+
+# Senior Interview Tips
+
+- Always explain **why** JPA exists before discussing Hibernate.
+- Differentiate **Specification vs Implementation**.
+- Never confuse **Flush** with **Commit**.
+- Explain that **Dirty Checking** works only for **Managed Entities**.
+- Mention that **Persistence Context** is much more than a cache—it manages identity, lifecycle, snapshots, synchronization, and caching.
+- Explain why **EntityManager is not thread-safe**.
+- Avoid recommending `FetchType.EAGER` as a universal solution to LazyInitializationException or the N+1 problem. Discuss use-case-driven fetching with `JOIN FETCH`, `@EntityGraph`, or DTO projections instead.
+
+---
+
+# KRB Academy Interview Readiness
+
+After completing this module, you should be able to confidently explain:
+
+- Why JPA exists
+- JPA vs Hibernate
+- EntityManager
+- Persistence Context
+- Dirty Checking
+- Flush vs Commit
+- Entity Lifecycle
+- persist() vs merge()
+- Lazy Loading
+- N+1 Query Problem
+- LazyInitializationException
+- Repository Internals
+- SimpleJpaRepository
+- Complete JPA Architecture
