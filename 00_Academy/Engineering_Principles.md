@@ -268,3 +268,88 @@
 
 ##EP-135: Let Hibernate translate object changes into SQL instead of requiring developers to write update statements manually.
 
+---
+
+## Spring Data JPA & Hibernate Principles
+
+### Principle 136
+High-level object-oriented queries should remain independent of database implementation details.
+
+### Principle 137
+Separate business queries from database-specific SQL syntax through the database dialect.
+
+### Principle 138
+Parse once and reuse the query plan instead of reparsing the same JPQL repeatedly.
+
+### Principle 139
+Prefer JPQL over native SQL whenever possible to keep the application database independent.
+
+### Principle 140
+JOIN filters data, while JOIN FETCH loads associated data.
+
+### Principle 141
+Performance problems are often caused by excessive database round trips rather than slow SQL execution.
+
+### Principle 142
+Choose fetch strategies based on the business use case, not a one-size-fits-all default.
+
+### Principle 143
+Reducing SQL count should never come at the cost of creating excessively large result sets.
+
+### Principle 144
+Applications should retrieve only the data required by the current use case.
+
+### Principle 145
+Persistence models and API models should remain independent.
+
+### Principle 146
+Represent queries as objects rather than strings.
+
+### Principle 147
+Business rules should be reusable instead of duplicated across repositories.
+
+### Principle 148
+Avoid processing data that will ultimately be discarded.
+
+### Principle 149
+Stable pagination requires deterministic ordering.
+
+### Principle 150
+Delegate sorting and pagination to the database.
+
+### Principle 151
+Detect conflicts when they are rare and prevent them when conflicts are expected.
+
+### Principle 152
+Optimize communication between the application and the database by reducing unnecessary round trips.
+
+### Principle 153
+Cache stable data and avoid caching highly volatile data.
+
+### Principle 154
+Different caches solve different problems: entity cache and query cache serve different purposes.
+
+### Principle 155
+Repositories encapsulate persistence logic while services encapsulate business logic.
+
+### Principle 156
+Use EntityManager instead of bypassing JPA with raw JDBC.
+
+### Principle 157
+Program against abstractions rather than implementations.
+
+### Principle 158
+Centralize cross-cutting repository behavior by extending SimpleJpaRepository instead of duplicating code.
+
+### Principle 159
+Load only the data required by the current use case.
+
+### Principle 160
+Delegate filtering, sorting, and pagination to the database.
+
+### Principle 161
+Choose the simplest solution that satisfies the performance requirements.
+
+### Principle 162
+Every optimization introduces trade-offs that must be understood.
+
