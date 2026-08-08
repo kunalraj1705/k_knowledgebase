@@ -353,3 +353,87 @@ Choose the simplest solution that satisfies the performance requirements.
 ### Principle 162
 Every optimization introduces trade-offs that must be understood.
 
+---
+
+## Spring Boot Internals Principles
+
+##EP-163: Discover configuration and components before creating managed objects so the container can build the application dependency graph systematically.
+
+##EP-164: Framework defaults should provide sensible behavior without preventing explicit application configuration.
+
+##EP-165: Infrastructure should be activated according to the actual application environment.
+
+##EP-166: Dependency selection and runtime configuration are separate responsibilities.
+
+##EP-167: Application infrastructure should match the application's execution model.
+
+##EP-168: Configuration should be externalized so the same application artifact can run across different environments.
+
+##EP-169: Related configuration should be represented as a structured, type-safe object.
+
+##EP-170: Invalid configuration should be detected as early as possible.
+
+##EP-171: Configuration describes the object graph; the container constructs and manages it.
+
+##EP-172: Required dependencies should be supplied during object construction.
+
+##EP-173: Circular dependencies often indicate incorrect responsibility boundaries.
+
+##EP-174: Higher-level abstractions should build on lower-level mechanisms.
+
+##EP-175: Infrastructure layers should have clearly separated responsibilities.
+
+##EP-176: Execute work at the lifecycle stage that matches its responsibility.
+
+##EP-177: Operational interfaces should be protected according to their sensitivity.
+
+##EP-178: Framework behavior should be observable enough to explain why configuration was applied or skipped.
+
+##EP-179: Reusable infrastructure should provide defaults without taking ownership away from the application.
+
+##EP-180: Application startup time affects deployment, scaling and recovery.
+
+##EP-181: Startup latency and runtime latency are separate optimization problems.
+
+##EP-182: Component scanning boundaries should reflect application boundaries.
+
+##EP-183: Disable framework infrastructure only when its behavior is understood.
+
+##EP-184: Startup dependencies should reflect actual readiness requirements.
+
+##EP-185: Liveness and readiness represent different operational questions.
+
+##EP-186: Lifecycle events provide timing and decoupling, not free execution.
+
+##EP-187: Failure information should be actionable.
+
+##EP-188: Required infrastructure failures should prevent the application from becoming ready.
+
+##EP-189: A reusable Spring Boot starter should be predictable, conditional, configurable and non-invasive.
+
+##EP-190: Libraries should minimize hidden side effects.
+
+##EP-191: Readiness should represent the minimum conditions required to safely serve traffic.
+
+##EP-192: Logs explain events, metrics reveal system behavior, and traces explain distributed request execution.
+
+##EP-193: Management interfaces should have a smaller security boundary than public business APIs.
+
+##EP-194: Configuration and secrets should be externalized from application code.
+
+##EP-195: Profiles should express meaningful environment or deployment differences.
+
+##EP-196: A dependency is not free; every library adds operational and maintenance cost.
+
+##EP-197: Bean initialization should establish object readiness, not execute large business workflows.
+
+##EP-198: Proxy-based behavior applies when execution passes through the proxy; direct self-invocation can bypass proxy interception.
+
+##EP-199: Transaction boundaries should represent business consistency requirements, not simply method boundaries.
+
+##EP-200: Concurrency should be sized according to downstream capacity.
+
+##EP-201: Production applications should be designed for both graceful startup and graceful shutdown.
+
+##EP-202: The application is not considered ready simply because the process is running; readiness reflects actual traffic suitability.
+
