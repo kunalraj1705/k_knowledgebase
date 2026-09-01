@@ -1,6 +1,4 @@
-# KRB Academy
-
-# Docker --- Docker Compose
+# KRB Academy — Docker Compose
 
 **Session:** Docker Fundamentals\
 **Date:** 1 September 2026\
