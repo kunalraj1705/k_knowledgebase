@@ -1,8 +1,10 @@
-# KRB Academy — Docker Compose
+# KRB Academy
 
-**Session:** Docker Fundamentals\
-**Date:** 1 September 2026\
-**Project Context:** KRB Enterprise\
+# Docker --- Docker Compose
+
+**Session:** Docker Fundamentals
+**Date:** 1 September 2026
+**Project Context:** KRB Enterprise
 **Status:** Completed
 
 ------------------------------------------------------------------------

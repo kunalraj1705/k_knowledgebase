@@ -1,4 +1,11 @@
-# KRB Academy — Docker Configuration and Environment Concepts
+# KRB Academy 
+
+# Docker --- Docker Configuration and Environment Concepts
+
+**Session:** Docker Fundamentals
+**Date:** 30 August 2026
+**Project Context:** KRB Enterprise
+**Status:** Completed
 
 ## Session Summary
 Today we learned Docker environment configuration and how it connects to Spring Boot deployment.
