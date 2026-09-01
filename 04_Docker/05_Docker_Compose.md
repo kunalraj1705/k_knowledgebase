@@ -2,9 +2,9 @@
 
 # Docker --- Docker Compose
 
-**Session:** Docker Fundamentals
-**Date:** 1 September 2026
-**Project Context:** KRB Enterprise
+**Session:** Docker Compose  
+**Date:** 1 September 2026  
+**Project Context:** KRB Enterprise  
 **Status:** Completed
 
 ------------------------------------------------------------------------

@@ -2,13 +2,12 @@
 
 # Docker --- Docker Configuration and Environment Concepts
 
-**Session:** Docker Fundamentals
-**Date:** 30 August 2026
-**Project Context:** KRB Enterprise
+**Session:** Docker Configuration and Environment Concepts  
+**Date:** 30 August 2026  
+**Project Context:** KRB Enterprise  
 **Status:** Completed
 
-## Session Summary
-Today we learned Docker environment configuration and how it connects to Spring Boot deployment.
+---
 
 ## 1. Docker `ENV`
 `ENV` defines default environment variables in an image.
