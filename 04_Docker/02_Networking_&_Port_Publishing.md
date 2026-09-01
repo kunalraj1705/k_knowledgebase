@@ -2,7 +2,7 @@
 
 # Docker — Networking & Port Publishing
 
-**Session:** Docker Fundamentals  
+**Session:** Networking & Port Publishing  
 **Date:** 26 August 2026  
 **Project Context:** KRB Enterprise  
 **Status:** Completed

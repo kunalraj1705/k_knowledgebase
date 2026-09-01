@@ -2,7 +2,7 @@
 
 # Docker — Volumes & Persistent Storage
 
-**Session:** Docker Fundamentals  
+**Session:** Volumes & Persistent Storage  
 **Date:** 27 August 2026  
 **Project Context:** KRB Enterprise  
 **Status:** Completed

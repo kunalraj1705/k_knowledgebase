@@ -1,6 +1,6 @@
 # KRB Academy
 
-# Docker — Session Notes
+# Docker — Docker Fundamentals
 
 **Session:** Docker Fundamentals  
 **Date:** 24 August 2026  
